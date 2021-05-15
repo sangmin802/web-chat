@@ -1,3 +1,7 @@
+```diff
+! text in tomato
+```
+
 ## web-socket
 
 - socket.io
@@ -16,7 +20,7 @@
 ### log-in
 
 - 사용자의 아이디를 지정하는 컴포넌트
-- <b style="color : tomato">아이디 저장여부는 고민</b>
+- ! 아이디 저장여부는 고민
 
 ### loby
 
@@ -44,13 +48,11 @@
 - 해당 `room`에 참여중인 사용자 리스트 좌측에 출력
 - 새로운 사용자 입장 시, 알림
 - 새로운 사용자가 방에 입장하거나 기존 사용자가 떠났을 때, 나를 제외한 사용자에게 알림
+
   > `io.of('/rooms').to('room').broadcast`?
-- <b style="color : tomato">해당 `room`에 대한 대화내용 저장 여부는 고민중</b>
+
+- 해당 `room`에 대한 대화내용 저장 여부는 고민중
 - 방 나가기의 경우 해당 `room`에서 떠나기. 앞으로 해당 `room`에 대한 알림은 받지 않는 완전한 이별
   > `socket.leave(room)`?
 - 로비로 이동시 해당 `room` 컴포넌트 언마운트
   > 해당 `room`에는 여전히 `join`된 상태
-
-<b style="color : tomato">해당 `room`에 대한 대화내용 저장 여부는 고민중</b>
-
-- <b style="color : tomato">해당 `room`에 대한 대화내용 저장 여부는 고민중</b>
