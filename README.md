@@ -50,3 +50,7 @@
   > `socket.leave(room)`?
 - 로비로 이동시 해당 `room` 컴포넌트 언마운트
   > 해당 `room`에는 여전히 `join`된 상태
+
+<b style="color : tomato">해당 `room`에 대한 대화내용 저장 여부는 고민중</b>
+
+- <b style="color : tomato">해당 `room`에 대한 대화내용 저장 여부는 고민중</b>
