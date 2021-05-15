@@ -1,8 +1,4 @@
-```diff
-! text in tomato
-```
-
-## web-socket
+## 🍑 web-socket
 
 - socket.io
 - React.js
@@ -10,19 +6,19 @@
 - gh-pages
 - heroku
 
-## socket.io 네임스페이스 갯수
+## 🍖 socket.io 네임스페이스 갯수
 
 - `/loby`
 - `/rooms`
 
-## 구조
+## 🍎 구조
 
-### log-in
+### 🍭 log-in
 
 - 사용자의 아이디를 지정하는 컴포넌트
-- ! 아이디 저장여부는 고민
+- 🔴 아이디 저장여부는 고민
 
-### loby
+### 🥝 loby
 
 - 유저리스트, 방리스트, 전체채팅·귓속말 내용 출력
 - 모든 유저와 전체채팅을 하는 컴포넌트
@@ -42,7 +38,7 @@
 - 생성되어있는 `room` 클릭 시, `/rooms` 의 room에 `join`
   > `socket.join(room)`?
 
-### room
+### 🥯 room
 
 - `room` 컴포넌트 입장 시, `loby` 네입스페이스의 서버에 대한 메시지 수신 등은 모두 받지 않도록 `disconnect`
 - 해당 `room`에 참여중인 사용자 리스트 좌측에 출력
@@ -51,8 +47,7 @@
 
   > `io.of('/rooms').to('room').broadcast`?
 
-! 해당 `room`에 대한 대화내용 저장 여부는 고민중
-
+- 🔴 해당 `room`에 대한 대화내용 저장 여부는 고민중
 - 방 나가기의 경우 해당 `room`에서 떠나기. 앞으로 해당 `room`에 대한 알림은 받지 않는 완전한 이별
   > `socket.leave(room)`?
 - 로비로 이동시 해당 `room` 컴포넌트 언마운트
