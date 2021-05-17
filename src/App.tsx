@@ -1,24 +1,35 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { useLogin } from "hooks/use-login";
+import { useSocket } from "hooks/use-socket";
+import { useUsers } from "hooks/use-users";
+import { useChat } from "hooks/use-chat";
+import Login from "components/login/index";
+import Loby from "components/loby";
 
 function App() {
+  const { isLogin, setLogin } = useLogin();
+  const { users, setUsers, setUser, removeUser } = useUsers();
+  const { chats, setChat, clearChat } = useChat();
+  const { connectSocekt, sendPublicMessage } = useSocket({
+    isLogin,
+    setLogin,
+    setUsers,
+    setUser,
+    removeUser,
+    setChat,
+  });
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app">
+      <main>
+        {!isLogin && <Login connectSocekt={connectSocekt} />}
+        {isLogin && users && (
+          <Loby
+            users={users}
+            chats={chats}
+            sendPublicMessage={sendPublicMessage}
+          />
+        )}
+      </main>
     </div>
   );
 }
