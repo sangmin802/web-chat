@@ -10,6 +10,8 @@ interface Props {
   setUser(T: IUser): void;
   removeUser(T: string): void;
   setChat(T: IChat): void;
+  selectedUser: null | IUser;
+  setSelectedUser(T: null | IUser): void;
 }
 
 export function useSocket({
@@ -19,6 +21,8 @@ export function useSocket({
   setUser,
   removeUser,
   setChat,
+  selectedUser,
+  setSelectedUser,
 }: Props) {
   useEffect(() => {
     if (!isLogin) return;
