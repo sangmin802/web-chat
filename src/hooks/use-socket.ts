@@ -66,8 +66,12 @@ export function useSocket({
   );
 
   const sendPublicMessage = useCallback(message => {
-    socket.emit("send public message", message);
+    socket.emit("public message", message);
   }, []);
 
-  return { connectSocekt, sendPublicMessage };
+  const sendPrivateMessage = useCallback(message => {
+    socket.emit("private message", message);
+  }, []);
+
+  return { connectSocekt, sendPublicMessage, sendPrivateMessage };
 }
