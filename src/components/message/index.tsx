@@ -1,22 +1,28 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
+import styled from "styled-components";
+import { IChat } from "types/chat";
 
-interface Props {
-  content: string;
-  from: string;
-  to?: string;
-}
-
-const Message = ({ content, from, to }: Props) => {
-  const title = useMemo(() => {
-    if (!to) return from;
-    return `${from} to ${to}`;
-  }, [from, to]);
+const Message = ({ content, from, to, fromSelf }: IChat) => {
+  const [title, type] = useMemo(() => {
+    if (!to && !from) return ["공지", 0];
+    if (!to) return [from?.userName, 1];
+    if (fromSelf) return [`당신이 ${to.userName}에게`, 2];
+    if (!fromSelf) return [`${from?.userName}님이 당신에게`, 2];
+    return [null, 1];
+  }, [from, to, fromSelf]);
 
   return (
-    <article>
+    <SArticle type={type}>
       {title} : {content}
-    </article>
+    </SArticle>
   );
 };
+
+const SArticle = styled.article<{ type: number }>`
+  color: ${({ type }) => {
+    const arr = ["green", "black", "purple"];
+    return arr[type];
+  }};
+`;
 
 export default Message;
