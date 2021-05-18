@@ -1,13 +1,21 @@
-import React, { useCallback, useRef } from "react";
+import { useCallback, useRef } from "react";
 import { IChat } from "types/chat";
+import { IUser } from "types/user";
 import Message from "components/message/index";
 
 interface Props {
   chats: IChat[];
   sendPublicMessage(T: string): void;
+  sendPrivateMessage(T: IChat): void;
+  selectedUser: null | IUser;
 }
 
-const Chat = ({ chats, sendPublicMessage }: Props) => {
+const Chat = ({
+  chats,
+  sendPublicMessage,
+  sendPrivateMessage,
+  selectedUser,
+}: Props) => {
   const ref = useRef<HTMLInputElement>(null);
   const onSubmitHandler = useCallback(
     e => {
