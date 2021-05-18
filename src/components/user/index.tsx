@@ -1,4 +1,5 @@
-import React from "react";
+import { useCallback } from "react";
+import styled from "styled-components";
 import { IUser } from "types/user";
 
 interface Props {
@@ -14,10 +15,18 @@ const User = ({ user, setSelectedUser, selectedUser }: Props) => {
   }, [setSelectedUser, user, selectedUser]);
 
   return (
-    <article>
+    <SArticle
+      isTarget={user.userID === selectedUser?.userID}
+      onClick={onClickHandler}
+    >
       <div className="user-name">{user.userName}</div>
-    </article>
+    </SArticle>
   );
 };
+
+const SArticle = styled.article<{ isTarget: boolean }>`
+  background-color: ${({ isTarget }) =>
+    isTarget ? "yellowgreen" : "transparent"};
+`;
 
 export default User;
