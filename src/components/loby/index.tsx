@@ -8,17 +8,37 @@ interface Props {
   users: IUser[];
   chats: IChat[];
   sendPublicMessage(T: string): void;
+  sendPrivateMessage(T: IChat): void;
+  selectedUser: null | IUser;
+  setSelectedUser(T: IUser): void;
 }
 
-const Loby = ({ users, chats, sendPublicMessage }: Props) => {
+const Loby = ({
+  users,
+  chats,
+  sendPublicMessage,
+  sendPrivateMessage,
+  selectedUser,
+  setSelectedUser,
+}: Props) => {
   return (
     <>
       <section className="users">
         {users.map(user => (
-          <User key={user.userID} user={user} />
+          <User
+            key={user.userID}
+            user={user}
+            setSelectedUser={setSelectedUser}
+            selectedUser={selectedUser}
+          />
         ))}
       </section>
-      <Chat chats={chats} sendPublicMessage={sendPublicMessage} />
+      <Chat
+        chats={chats}
+        sendPublicMessage={sendPublicMessage}
+        sendPrivateMessage={sendPrivateMessage}
+        selectedUser={selectedUser}
+      />
     </>
   );
 };
