@@ -24,12 +24,13 @@ const Chat = ({ chats, sendPublicMessage }: Props) => {
 
   return (
     <section>
-      <ul className="chats">
+      <div className="chats">
         {chats.map((chat, i) => (
-          <Message key={`public chat ${i}`} {...chat} />
+          <Message key={`chat ${i}`} {...chat} />
         ))}
-      </ul>
+      </div>
       <form onSubmit={onSubmitHandler}>
+        {selectedUser && <span>{selectedUser.userName} 에게</span>}
         <input ref={ref} type="text" />
         <button>입력</button>
       </form>
