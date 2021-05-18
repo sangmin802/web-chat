@@ -1,5 +1,8 @@
+import { IUser } from "./user";
+
 export interface IChat {
   content: string;
-  from: string;
-  to?: string;
+  fromSelf?: boolean;
+  from?: IUser;
+  to?: IUser;
 }
