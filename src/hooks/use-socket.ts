@@ -47,6 +47,10 @@ export function useSocket({
   }, [isLogin, setUsers, setUser, removeUser, setChat]);
 
   useEffect(() => {
+    socket.on("session", userID => {
+      socket.userID = userID;
+    });
+
     return () => {
       socket.disconnect();
     };
