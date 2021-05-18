@@ -13,12 +13,13 @@ const Chat = ({ chats, sendPublicMessage }: Props) => {
     e => {
       e.preventDefault();
       const message = ref?.current?.value;
-      if (message) {
-        sendPublicMessage(message);
-        e.target[0].value = "";
-      }
+      if (!message) return;
+      if (selectedUser)
+        sendPrivateMessage({ content: message, to: selectedUser });
+      if (!selectedUser) sendPublicMessage(message);
+      e.target[0].value = "";
     },
-    [sendPublicMessage, ref]
+    [sendPublicMessage, ref, selectedUser, sendPrivateMessage]
   );
 
   return (
