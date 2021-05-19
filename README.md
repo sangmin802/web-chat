@@ -7,6 +7,7 @@
 - heroku
 
 ## 🍎 server express + socket.io
+
 - [web-chat-server](https://github.com/sangmin802/web-chat-server)
 
 ## 🍖 socket.io 네임스페이스 갯수
@@ -24,10 +25,12 @@
 
 ## 📁 구조
 
+- 🔴 : 서버
+- 🔵 : 클라이언트
+
 ### 🍭 log-in
 
 - 사용자의 아이디를 지정하는 컴포넌트
-- 🔴 아이디 저장여부는 고민
 
 ### 🥝 loby
 
@@ -51,15 +54,31 @@
 
 ### 🥯 room
 
-- `room` 컴포넌트 입장 시, `loby` 네입스페이스의 서버에 대한 메시지 수신 등은 모두 받지 않도록 `disconnect`
-- 해당 `room`에 참여중인 사용자 리스트 좌측에 출력
-- 새로운 사용자 입장 시, 알림
-- 새로운 사용자가 방에 입장하거나 기존 사용자가 떠났을 때, 나를 제외한 사용자에게 알림
+- 🔴🔵
+- [ ] 🔵 `room` 생성 버튼 클릭
+  - [ ] 🔵 `roomName` 속성 지정 후 서버의 `craete room` 이벤트 호출
+- [ ] 🔴 `craete room` 수신
+  - [ ] 🔴 `room store class`에 `room` 정보 추가. `users` 항목에 생성자는 바로 추가
+  - [ ] 🔴 모든 유저에게 생성된 `room` 정보 전달 `create room` 호출
 
-  > `io.of('/rooms').to('room').broadcast`?
+```ts
+// 대략적인 room 구조
+interface room {
+  creater: string;
+  isJoin: boolean = false;
+  roomID: string;
+  roomName: string;
+  // room을 생성한 사람은 users에 바로 포함
+  users: { userName: string; userID: string }[];
+}
+```
 
-- 🔴 해당 `room`에 대한 대화내용 저장 여부는 고민중
-- 방 나가기의 경우 해당 `room`에서 떠나기. 앞으로 해당 `room`에 대한 알림은 받지 않는 완전한 이별
-  > `socket.leave(room)`?
-- 로비로 이동시 해당 `room` 컴포넌트 언마운트
-  > 해당 `room`에는 여전히 `join`된 상태
+- [ ] 🔵 `create room` 수신
+
+  - [ ] 🔵 `room.creater`가 `socket.userID`와 동일하면, 바로 `room component` 활성화
+  - [ ] 🔵 `rooms` 상태값에 해당 `room` 정보 추가
+
+- [ ] `room` 입장 시, 메시지 리스트 초기화
+- [ ] `room` 입장 시, `loby`의 새로운 유저 입장, 퇴장, 전역 메시지 이벤트 비활성화
+- [ ] `room` 입장 시, `room-loby` 컴포넌트 활성화
+- [ ] `room` 입장 시, 해당 `room`에 입장 메시지 알림
