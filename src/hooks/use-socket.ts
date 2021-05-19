@@ -37,10 +37,14 @@ export function useSocket({
       });
       setUsers(newUsers);
     });
+
+    socket.on("rooms", (rooms: IRoom[]) => {
+      setRooms(rooms);
     });
 
     socket.on("user connected", user => {
-      setUser(user);
+      const newUsers = [...(users as IUser[]), user];
+      setUsers(newUsers);
       setChat({ content: `${user.userName}님이 입장하셨습니다.` });
     });
 
@@ -51,15 +55,17 @@ export function useSocket({
         content = `귓속말 대상인 ${userName}님이 퇴장하셨습니다.`;
         setSelectedUser(null);
       }
+      const newUsers = (users as IUser[]).filter(
+        user => user.userID !== userID
+      );
       setChat({ content });
-      removeUser(userID);
+      setUsers(newUsers);
     });
 
-    const messageEvents = ["public message", "private message"];
-    messageEvents.forEach(event => {
-      socket.on(event, message => {
-        const fromSelf = message.from.userID === socket.userID ? true : false;
-        setChat({ ...message, fromSelf });
+    socket.on("public message", message => {
+      setChat({ ...message });
+    });
+
     socket.on("private message", message => {
       const fromSelf = message.from.userID === socket.userID ? true : false;
       setChat({ ...message, fromSelf });
@@ -86,12 +92,13 @@ export function useSocket({
     };
   }, [
     isLogin,
+    users,
     setUsers,
-    setUser,
-    removeUser,
     setChat,
     selectedUser,
     setSelectedUser,
+    rooms,
+    setRooms,
   ]);
 
   useEffect(() => {
@@ -121,5 +128,9 @@ export function useSocket({
     socket.emit("private message", message);
   }, []);
 
-  return { connectSocekt, sendPublicMessage, sendPrivateMessage };
+  return {
+    connectSocekt,
+    sendPublicMessage,
+    sendPrivateMessage,
+  };
 }
