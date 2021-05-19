@@ -54,31 +54,44 @@
 
 ### 🥯 room
 
-- 🔴🔵
-- [ ] 🔵 `room` 생성 버튼 클릭
+- [ ] 🔵 방 생성을 위해 `room` 생성 버튼 클릭
+
   - [ ] 🔵 `roomName` 속성 지정 후 서버의 `craete room` 이벤트 호출
+
 - [ ] 🔴 `craete room` 수신
-  - [ ] 🔴 `room store class`에 `room` 정보 추가. `users` 항목에 생성자는 바로 추가
-  - [ ] 🔴 모든 유저에게 생성된 `room` 정보 전달 `create room` 호출
+
+  - [ ] 🔴 `room store class`에 `room` 정보 추가
+  - [ ] 🔴 모든 유저에게 생성된 `room` 정보 전달을 위한 `room created` 호출
 
 ```ts
 // 대략적인 room 구조
 interface room {
   creater: string;
-  isJoin: boolean = false;
+  isJoined: boolean = false;
   roomID: string;
   roomName: string;
-  // room을 생성한 사람은 users에 바로 포함
   users: { userName: string; userID: string }[];
+  messages: { content: string; from: string }[];
 }
 ```
 
-- [ ] 🔵 `create room` 수신
+- [ ] 🔵 `room created` 수신
 
-  - [ ] 🔵 `room.creater`가 `socket.userID`와 동일하면, 바로 `room component` 활성화
+  - [ ] 🔵 `room.creater`가 `socket.userID`와 동일하면 `join room` 바로 호출
   - [ ] 🔵 `rooms` 상태값에 해당 `room` 정보 추가
 
-- [ ] `room` 입장 시, 메시지 리스트 초기화
-- [ ] `room` 입장 시, `loby`의 새로운 유저 입장, 퇴장, 전역 메시지 이벤트 비활성화
-- [ ] `room` 입장 시, `room-loby` 컴포넌트 활성화
-- [ ] `room` 입장 시, 해당 `room`에 입장 메시지 알림
+- [ ] 🔵 방에 들어가기 위해 `join room` 호출
+
+- [ ] 🔴 `join room` 수신
+
+  - [ ] 🔴 호출한 `socket.userID`는 `socket.join(roomID)`로 참가
+  - [ ] 🔴 `room store`에 해당 `roomID`의 `users`에 해당 `socket` 유저 정보 추가
+  - [ ] 🔴 수정된 `room`을 클라이언트에게 반환. `update room` 호출
+  - [ ] 🔴 해당 `roomID`에 가입한 유저들에게만 `.to('roomID').emit`으로 입장 메시지 알림 `room message`
+
+- [ ] 🔵 `update room` 수신
+
+  - [ ] 🔵 받아온 새로운 `room` 의 `users`에 자신인 `socket.id`가 들어있다면 `isJoined : true`로 변경
+  - [ ] 🔵 `rooms` 상태값에 해당 `room` 정보 추가
+
+- 메시지 수신관련 추가필요
