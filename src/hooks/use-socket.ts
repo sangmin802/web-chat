@@ -2,32 +2,41 @@ import { useEffect, useCallback } from "react";
 import { socket } from "socket/index";
 import { IUser } from "types/user";
 import { IChat } from "types/chat";
+import { IRoom } from "types/room";
 
 interface Props {
   isLogin: boolean;
   setLogin(T: boolean): void;
+  users: null | IUser[];
   setUsers(T: IUser[]): void;
-  setUser(T: IUser): void;
-  removeUser(T: string): void;
   setChat(T: IChat): void;
   selectedUser: null | IUser;
   setSelectedUser(T: null | IUser): void;
+  rooms: IRoom[];
+  setRooms(T: IRoom[]): void;
 }
 
 export function useSocket({
   isLogin,
   setLogin,
+  users,
   setUsers,
-  setUser,
-  removeUser,
   setChat,
   selectedUser,
   setSelectedUser,
+  rooms,
+  setRooms,
 }: Props) {
   useEffect(() => {
     if (!isLogin) return;
-    socket.on("users", users => {
-      setUsers(users);
+    socket.on("users", (users: IUser[]) => {
+      const newUsers = users.map(user => {
+        user.self = false;
+        if (user.userID === socket.userID) user.self = true;
+        return user;
+      });
+      setUsers(newUsers);
+    });
     });
 
     socket.on("user connected", user => {
@@ -51,7 +60,21 @@ export function useSocket({
       socket.on(event, message => {
         const fromSelf = message.from.userID === socket.userID ? true : false;
         setChat({ ...message, fromSelf });
+    socket.on("private message", message => {
+      const fromSelf = message.from.userID === socket.userID ? true : false;
+      setChat({ ...message, fromSelf });
+      if (fromSelf) return;
+      const newUsers = (users as IUser[]).map(user => {
+        if (user.userID === message.from.userID) {
+          const messages = {
+            size: user.messages.size + 1,
+            recent: new Date(),
+          };
+          user.messages = messages;
+        }
+        return user;
       });
+      setUsers(newUsers);
     });
 
     return () => {
