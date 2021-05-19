@@ -10,6 +10,7 @@ interface Props {
 
 const User = ({ user, setSelectedUser, selectedUser }: Props) => {
   const onClickHandler = useCallback(() => {
+    if (user.self) return;
     const toggle = selectedUser?.userID === user.userID ? null : user;
     setSelectedUser(toggle);
   }, [setSelectedUser, user, selectedUser]);
