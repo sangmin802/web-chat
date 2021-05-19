@@ -1,8 +1,9 @@
-import React from "react";
+import { useCallback } from "react";
 import User from "components/user/index";
 import Chat from "components/chat/index";
 import { IUser } from "types/user";
 import { IChat } from "types/chat";
+import { IRoom } from "types/room";
 
 interface Props {
   users: IUser[];
@@ -11,6 +12,7 @@ interface Props {
   sendPrivateMessage(T: IChat): void;
   selectedUser: null | IUser;
   setSelectedUser(T: IUser): void;
+  rooms: IRoom[];
 }
 
 const Loby = ({
@@ -20,7 +22,17 @@ const Loby = ({
   sendPrivateMessage,
   selectedUser,
   setSelectedUser,
+  rooms,
 }: Props) => {
+  const emitMessage = useCallback(
+    message => {
+      if (selectedUser)
+        sendPrivateMessage({ content: message, to: selectedUser });
+      if (!selectedUser) sendPublicMessage(message);
+    },
+    [sendPublicMessage, selectedUser, sendPrivateMessage]
+  );
+
   return (
     <>
       <section className="users">
@@ -33,12 +45,9 @@ const Loby = ({
           />
         ))}
       </section>
-      <Chat
-        chats={chats}
-        sendPublicMessage={sendPublicMessage}
-        sendPrivateMessage={sendPrivateMessage}
-        selectedUser={selectedUser}
-      />
+      <Chat chats={chats} emitMessage={emitMessage}>
+        {selectedUser && <span>{selectedUser.userName} 에게</span>}
+      </Chat>
     </>
   );
 };

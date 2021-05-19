@@ -5,29 +5,21 @@ import Message from "components/message/index";
 
 interface Props {
   chats: IChat[];
-  sendPublicMessage(T: string): void;
-  sendPrivateMessage(T: IChat): void;
-  selectedUser: null | IUser;
+  emitMessage(T: string): void;
+  children?: any;
 }
 
-const Chat = ({
-  chats,
-  sendPublicMessage,
-  sendPrivateMessage,
-  selectedUser,
-}: Props) => {
+const Chat = ({ chats, emitMessage, children }: Props) => {
   const ref = useRef<HTMLInputElement>(null);
   const onSubmitHandler = useCallback(
     e => {
       e.preventDefault();
       const message = ref?.current?.value;
       if (!message) return;
-      if (selectedUser)
-        sendPrivateMessage({ content: message, to: selectedUser });
-      if (!selectedUser) sendPublicMessage(message);
+      emitMessage(message);
       e.target[0].value = "";
     },
-    [sendPublicMessage, ref, selectedUser, sendPrivateMessage]
+    [emitMessage]
   );
 
   return (
@@ -38,7 +30,7 @@ const Chat = ({
         ))}
       </div>
       <form onSubmit={onSubmitHandler}>
-        {selectedUser && <span>{selectedUser.userName} 에게</span>}
+        {children}
         <input ref={ref} type="text" />
         <button>입력</button>
       </form>
