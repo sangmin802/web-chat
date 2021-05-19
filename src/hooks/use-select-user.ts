@@ -6,6 +6,7 @@ export function useSelectUser() {
 
   const setSelectedUser = useCallback(
     (user: null | IUser) => {
+      if (user) user.messages.size = 0;
       setState(user);
     },
     [setState]
