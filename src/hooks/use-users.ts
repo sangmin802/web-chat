@@ -6,25 +6,16 @@ export function useUsers() {
 
   const setUsers = useCallback(
     (users: IUser[]) => {
+      users.sort((a, b) => {
+        if (a.self) return -1;
+        if (b.self) return 1;
+        if (a.messages.recent > b.messages.recent) return -1;
+        return 0;
+      });
       setState(users);
     },
     [setState]
   );
 
-  const setUser = useCallback(
-    (user: IUser) => {
-      setState([...(users as IUser[]), user]);
-    },
-    [users, setState]
-  );
-
-  const removeUser = useCallback(
-    (userID: string) => {
-      const filterdUser = users?.filter(user => user.userID !== userID);
-      setState(filterdUser as IUser[]);
-    },
-    [users, setState]
-  );
-
-  return { users, setUsers, setUser, removeUser };
+  return { users, setUsers };
 }
