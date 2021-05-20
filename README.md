@@ -54,17 +54,19 @@
 
 ### 🥯 room
 
-- [ ] 🔵 방 생성을 위해 `room` 생성 버튼 클릭
+- [x] 🔵 방 생성을 위해 `room` 생성 버튼 클릭
 
-  - [ ] 🔵 `roomName` 속성 지정 후 서버의 `craete room` 이벤트 호출
+  - [x] 🔵 `roomName` 속성 지정 후 서버의 `craete room` 이벤트 호출
+    > 구현에 있어서는 일단 `roomID`로 `roomName` 대체
 
-- [ ] 🔴 `craete room` 수신
+- [x] 🔴 `craete room` 수신
 
-  - [ ] 🔴 `room store class`에 `room` 정보 추가
-  - [ ] 🔴 모든 유저에게 생성된 `room` 정보 전달을 위한 `room created` 호출
+  - [x] 🔴 `room store class`에 `room` 정보 추가
+  - [x] 🔴 모든 유저에게 생성된 `room` 정보 전달을 위한 `room created` 호출
 
 ```ts
 // 대략적인 room 구조
+// 클라이언트에서 rooms는 new Map으로 관리
 interface room {
   creater: string;
   isJoined: boolean = false;
@@ -72,26 +74,64 @@ interface room {
   roomName: string;
   users: { userName: string; userID: string }[];
   messages: { content: string; from: string }[];
+  hasNewMessages: 0;
 }
 ```
 
-- [ ] 🔵 `room created` 수신
+- [x] 🔵 `room created` 수신
 
-  - [ ] 🔵 `room.creater`가 `socket.userID`와 동일하면 `join room` 바로 호출
-  - [ ] 🔵 `rooms` 상태값에 해당 `room` 정보 추가
+  - [x] 🔵 `room.creater`가 `socket.userID`와 동일하면 `join room` 바로 호출
+  - [x] 🔵 `rooms` 상태값에 해당 `room` 정보 추가
 
-- [ ] 🔵 방에 들어가기 위해 `join room` 호출
+- [x] 🔵 방에 들어가기 위해 `join room` 호출
 
-- [ ] 🔴 `join room` 수신
+  - [x] 🔵 만약 이미 참여해서 `isJoined : true` 라면 `room-loby` 컴포넌트만 활성화
+  - [x] 🔵 `isJoined : false` 라면 `join room socket event emit`
 
-  - [ ] 🔴 호출한 `socket.userID`는 `socket.join(roomID)`로 참가
-  - [ ] 🔴 `room store`에 해당 `roomID`의 `users`에 해당 `socket` 유저 정보 추가
-  - [ ] 🔴 수정된 `room`을 클라이언트에게 반환. `update room` 호출
-  - [ ] 🔴 해당 `roomID`에 가입한 유저들에게만 `.to('roomID').emit`으로 입장 메시지 알림 `room message`
+- [x] 🔴 `join room` 수신
 
-- [ ] 🔵 `update room` 수신
+  - [x] 🔴 호출한 `socket.userID`는 `socket.join(roomID)`로 참가
+  - [x] 🔴 `room store`에 해당 `roomID`의 `users`에 해당 `socket` 유저 정보 추가
+  - [x] 🔴 추가된 클라이언트 정보 전달. `join room` 호출
+  - [x] 🔴 해당 `roomID`에 가입한 유저들에게만 `.to('roomID').emit`으로 입장 메시지 알림 `room message`
 
-  - [ ] 🔵 받아온 새로운 `room` 의 `users`에 자신인 `socket.id`가 들어있다면 `isJoined : true`로 변경
-  - [ ] 🔵 `rooms` 상태값에 해당 `room` 정보 추가
+- [x] 🔵 `join room` 수신
 
-- 메시지 수신관련 추가필요
+  - [x] 🔵 `room`에 접속한 `userID`가 `socket.userID`와 동일, 즉 나 이고, `isJoined : false`상태라면 `isJoined : true`로 변경
+  - [x] 🔵 `room`에 접속한 `userID`가 `socket.userID`와 동일, 즉 나라면 `room-loby` 컴포넌트 활성화
+  - [x] 🔵 `rooms` 상태값에 해당 `room` 정보 추가
+
+- [x] 🔵 방 나가기.
+
+  - [x] 🔵 방 `join` 상태는 유지하며, 로비로만 이동할 경우 `setRoom(null)`
+  - [x] 🔵 방 `join` 상태 자체를 해지할 경우, `roomID`를 `leave rom` 이벤트로 `emit`
+
+- [x] 🔴 `leave room` 수신
+
+  - [x] 🔴 해당 `roomID`에 대한 `socket.leave` 실행
+  - [x] 🔴 `roomStore`의 해당 `roomID` 정보에서 `users`에 해당 이벤트를 호출한 `socket.userID` 제거
+  - [x] 🔴 변경된 `room` 정보 `roomStore`에 저장
+  - [x] 🔴 퇴장한 클라이언트 정보 정보 `leave room` 이벤트로 클라이언트에 전달 및, 해당 `roomID`에 퇴장알림 전달
+
+- [x] 🔵 `leave room` 수신
+
+  - [x] 🔵 퇴장한 `userID`가 자신의 `socket.userID`와 동일하고 `isJoined : true`상태라면 `isJoined : false`로 변경
+  - [x] 🔵 해당 `room`의 속성값들 모두 초기화`(messages, hasNewMessages ...)`
+  - [x] 🔵 `rooms` 상태값 변경. 만약, `isJoined : false`로 바뀐 클라이언트라면, `room-loby`컴포넌트 비활성화
+
+- [x] 🔵 `roomID`와 함께`room`에 메시지 전달
+
+- [x] 🔴 `room message` 수신
+
+  - [x] 🔴 해당 `roomID`에 메시지 내용 전달. 발신자는 `socket.userID`
+
+- [x] 🔵 `room message` 수신
+  - [x] 🔵 해당 `room`의 `messages`에 추가
+  - [x] 🔵 현재 선택된 `room`이 아니라면, `hasNewMessages` 카운팅
+
+## 추가 고민사항
+
+- 생성된 room에 남아있는 사용자가 없다면, room 제거
+- 선택사항
+  - 초기 생성한 유저정보를 로컬스토리지에 저장 유지를 통해 `room`에 `join`된 유저 유지(테스트할땐 세션으로)
+  - 모든 컴포넌트가 언마운트(브라우저 종료)되었을 때, 모든 `room`에서 `leave` 조치 - 되도록 이방법을 하는게
