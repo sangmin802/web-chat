@@ -183,8 +183,11 @@ export function useSocket({
     setChat,
     selectedUser,
     setSelectedUser,
+    joinRoom,
     rooms,
     setRooms,
+    room,
+    setRoom,
   ]);
 
   useEffect(() => {
