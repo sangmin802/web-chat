@@ -76,7 +76,9 @@ export function useSocket({
     });
 
     socket.on("rooms", (rooms: IRoom[]) => {
-      setRooms(rooms);
+      const newRooms: IRooms = {};
+      rooms.forEach(room => (newRooms[room.roomID] = room));
+      setRooms(newRooms);
     });
 
     socket.on("user connected", user => {
