@@ -27,6 +27,9 @@ export function useSocket({
   rooms,
   setRooms,
 }: Props) {
+  const createRoom = useCallback(() => {
+    socket.emit("create room");
+  }, []);
   const sendRoomMessage = useCallback((message, roomID) => {
     socket.emit("room message", { message, roomID });
   }, []);
@@ -87,6 +90,11 @@ export function useSocket({
       setUsers(newUsers);
     });
 
+    socket.on("room created", (room: IRoom) => {
+      if (room.creater === socket.userID) joinRoom(room.roomID);
+      const newRooms = { ...rooms, [room.roomID]: room };
+      setRooms(newRooms);
+    });
     socket.on("room message", ({ message, roomID }) => {
       const targetRoom = { ...rooms[roomID] };
       targetRoom.messages.push(message);

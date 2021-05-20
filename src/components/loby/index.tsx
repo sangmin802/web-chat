@@ -33,6 +33,9 @@ const Loby = ({
     [sendPublicMessage, selectedUser, sendPrivateMessage]
   );
 
+  const createRoomHandler = useCallback(() => {
+    createRoom();
+  }, [createRoom]);
   return (
     <>
       <section className="users">
@@ -45,6 +48,7 @@ const Loby = ({
           />
         ))}
       </section>
+        <button onClick={createRoomHandler}>방 만들기</button>
       <Chat chats={chats} emitMessage={emitMessage}>
         {selectedUser && <span>{selectedUser.userName} 에게</span>}
       </Chat>
