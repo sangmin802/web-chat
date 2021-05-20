@@ -8,7 +8,7 @@ export interface IUser {
   userID: string;
   self: boolean;
   messages: {
-    size: number;
+    hasNewMessages: number;
     recent: Date;
   };
 }
