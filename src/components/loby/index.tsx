@@ -49,6 +49,17 @@ const Loby = ({
         ))}
       </section>
         <button onClick={createRoomHandler}>방 만들기</button>
+        <section>
+          {iterableRooms.map(room => (
+            <Room
+              key={room.roomID}
+              room={room}
+              setRoom={setRoom}
+              joinRoom={joinRoom}
+            />
+          ))}
+        </section>
+      </section>
       <Chat chats={chats} emitMessage={emitMessage}>
         {selectedUser && <span>{selectedUser.userName} 에게</span>}
       </Chat>
