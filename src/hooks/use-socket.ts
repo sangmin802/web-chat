@@ -2,7 +2,7 @@ import { useEffect, useCallback } from "react";
 import { socket } from "socket/index";
 import { IUser } from "types/user";
 import { IChat } from "types/chat";
-import { IRoom } from "types/room";
+import { IRoom, IRooms } from "types/room";
 
 interface Props {
   isLogin: boolean;
@@ -12,8 +12,10 @@ interface Props {
   setChat(T: IChat): void;
   selectedUser: null | IUser;
   setSelectedUser(T: null | IUser): void;
-  rooms: IRoom[];
-  setRooms(T: IRoom[]): void;
+  rooms: IRooms;
+  setRooms(T: IRooms): void;
+  room: null | string;
+  setRoom(T: null | string): void;
 }
 
 export function useSocket({
@@ -26,10 +28,30 @@ export function useSocket({
   setSelectedUser,
   rooms,
   setRooms,
+  room,
+  setRoom,
 }: Props) {
+  const connectSocekt = useCallback(
+    userName => {
+      setLogin(true);
+      socket.auth = { userName };
+      socket.connect();
+    },
+    [setLogin]
+  );
+
+  const sendPublicMessage = useCallback(message => {
+    socket.emit("public message", message);
+  }, []);
+
+  const sendPrivateMessage = useCallback(message => {
+    socket.emit("private message", message);
+  }, []);
+
   const createRoom = useCallback(() => {
     socket.emit("create room");
   }, []);
+
   const joinRoom = useCallback(roomID => {
     socket.emit("join room", roomID);
   }, []);
@@ -140,12 +162,17 @@ export function useSocket({
       const newRooms = { ...rooms, [roomID]: targetRoom };
       setRooms(newRooms);
     });
+
     return () => {
       socket.off("users");
       socket.off("user connected");
       socket.off("user disconnected");
       socket.off("public message");
       socket.off("private message");
+      socket.off("room created");
+      socket.off("join room");
+      socket.off("leave room");
+      socket.off("room message");
     };
   }, [
     isLogin,
@@ -168,26 +195,13 @@ export function useSocket({
     };
   }, []);
 
-  const connectSocekt = useCallback(
-    userName => {
-      setLogin(true);
-      socket.auth = { userName };
-      socket.connect();
-    },
-    [setLogin]
-  );
-
-  const sendPublicMessage = useCallback(message => {
-    socket.emit("public message", message);
-  }, []);
-
-  const sendPrivateMessage = useCallback(message => {
-    socket.emit("private message", message);
-  }, []);
-
   return {
     connectSocekt,
     sendPublicMessage,
     sendPrivateMessage,
+    sendRoomMessage,
+    createRoom,
+    joinRoom,
+    leaveRoom,
   };
 }
