@@ -1,16 +1,21 @@
 import React, { useCallback, useMemo } from "react";
-import { IChat } from "types/chat";
 import { IRoom } from "types/room";
 import Chat from "components/chat";
 
 interface Props {
-  room: IRoom;
+  selectedRoom: IRoom;
   setRoom(T: null): void;
-  chats: IChat[];
+  leaveRoom(T: string): void;
+  sendRoomMessage(T: string, U: string): void;
 }
 
-const RoomLoby = ({ room, setRoom, chats }: Props) => {
-  const emitMessage = useCallback(message => {}, []);
+const RoomLoby = ({
+  selectedRoom,
+  setRoom,
+  leaveRoom,
+  sendRoomMessage,
+}: Props) => {
+  const roomID = useMemo(() => selectedRoom.roomID, [selectedRoom.roomID]);
   const emitMessage = useCallback(
     message => {
       sendRoomMessage(message, roomID);
@@ -35,11 +40,11 @@ const RoomLoby = ({ room, setRoom, chats }: Props) => {
         로비로 이동
       </div>
       <div className="room-users">
-        {users.map(user => (
-          <>{user.userName}</>
+        {selectedRoom.users.map(user => (
+          <div key={user.userID}>{user.userName}</div>
         ))}
       </div>
-      <Chat chats={chats} emitMessage={emitMessage} />
+      <Chat chats={selectedRoom.messages} emitMessage={emitMessage} />
     </section>
   );
 };

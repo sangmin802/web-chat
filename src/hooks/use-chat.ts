@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { IChat } from "types/chat";
 
-export function useChat(resetKey: any) {
+export function useChat() {
   const [chats, setState] = useState<IChat[]>([]);
 
   const setChat = useCallback(
@@ -15,11 +15,5 @@ export function useChat(resetKey: any) {
     setState([]);
   }, [setState]);
 
-  useEffect(() => {
-    return () => {
-      clearChat();
-    };
-  }, [resetKey, clearChat]);
-
-  return { chats, setChat };
+  return { chats, setChat, clearChat };
 }

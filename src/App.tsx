@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useLogin } from "hooks/use-login";
 import { useSocket } from "hooks/use-socket";
 import { useUsers } from "hooks/use-users";
@@ -15,9 +15,17 @@ function App() {
   const { users, setUsers } = useUsers();
   const { room, setRoom } = useRoom();
   const { rooms, setRooms } = useRooms();
-  const { chats, setChat } = useChat(room);
+  const { chats, setChat } = useChat();
   const { selectedUser, setSelectedUser } = useSelectUser();
-  const { connectSocekt, sendPublicMessage, sendPrivateMessage } = useSocket({
+  const {
+    connectSocekt,
+    sendPublicMessage,
+    sendPrivateMessage,
+    sendRoomMessage,
+    createRoom,
+    joinRoom,
+    leaveRoom,
+  } = useSocket({
     isLogin,
     setLogin,
     users,
@@ -27,16 +35,28 @@ function App() {
     setSelectedUser,
     rooms,
     setRooms,
+    room,
+    setRoom,
   });
+
+  const selectedRoom = useMemo(() => {
+    if (!room) return;
+    return rooms[room];
+  }, [rooms, room]);
 
   return (
     <div className="app">
       <main>
         {!isLogin && <Login connectSocekt={connectSocekt} />}
-        {isLogin && room && (
-          <RoomLoby room={room} setRoom={setRoom} chats={chats} />
+        {isLogin && selectedRoom && (
+          <RoomLoby
+            selectedRoom={selectedRoom}
+            setRoom={setRoom}
+            leaveRoom={leaveRoom}
+            sendRoomMessage={sendRoomMessage}
+          />
         )}
-        {isLogin && users && (
+        {isLogin && !selectedRoom && users && (
           <Loby
             users={users}
             chats={chats}
@@ -45,6 +65,9 @@ function App() {
             selectedUser={selectedUser}
             setSelectedUser={setSelectedUser}
             rooms={rooms}
+            setRoom={setRoom}
+            joinRoom={joinRoom}
+            createRoom={createRoom}
           />
         )}
       </main>

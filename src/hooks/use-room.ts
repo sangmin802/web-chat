@@ -1,12 +1,11 @@
 import { useCallback, useState } from "react";
-import { IRoom } from "types/room";
 
 export function useRoom() {
-  const [room, setState] = useState<null | IRoom>(null);
+  const [room, setState] = useState<null | string>(null);
 
   const setRoom = useCallback(
-    (val: null | IRoom) => {
-      setState(val);
+    (roomID: null | string) => {
+      setState(roomID);
     },
     [setState]
   );

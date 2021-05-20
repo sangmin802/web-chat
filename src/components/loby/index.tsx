@@ -1,9 +1,10 @@
-import { useCallback } from "react";
-import User from "components/user/index";
-import Chat from "components/chat/index";
+import { useCallback, useMemo } from "react";
 import { IUser } from "types/user";
 import { IChat } from "types/chat";
-import { IRoom } from "types/room";
+import { IRooms } from "types/room";
+import User from "components/user/index";
+import Chat from "components/chat/index";
+import Room from "components/room/index";
 
 interface Props {
   users: IUser[];
@@ -12,7 +13,10 @@ interface Props {
   sendPrivateMessage(T: IChat): void;
   selectedUser: null | IUser;
   setSelectedUser(T: IUser): void;
-  rooms: IRoom[];
+  rooms: IRooms;
+  setRoom(T: string): void;
+  createRoom(): void;
+  joinRoom(T: string): void;
 }
 
 const Loby = ({
@@ -23,6 +27,9 @@ const Loby = ({
   selectedUser,
   setSelectedUser,
   rooms,
+  setRoom,
+  createRoom,
+  joinRoom,
 }: Props) => {
   const emitMessage = useCallback(
     message => {
@@ -36,6 +43,9 @@ const Loby = ({
   const createRoomHandler = useCallback(() => {
     createRoom();
   }, [createRoom]);
+
+  const iterableRooms = useMemo(() => Object.values(rooms), [rooms]);
+
   return (
     <>
       <section className="users">
@@ -48,6 +58,7 @@ const Loby = ({
           />
         ))}
       </section>
+      <section>
         <button onClick={createRoomHandler}>방 만들기</button>
         <section>
           {iterableRooms.map(room => (
