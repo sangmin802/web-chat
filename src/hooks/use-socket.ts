@@ -112,7 +112,7 @@ export function useSocket({
       const newUsers = (users as IUser[]).map(user => {
         if (user.userID === message.from.userID) {
           const messages = {
-            size: user.messages.size + 1,
+            hasNewMessages: user.messages.hasNewMessages + 1,
             recent: new Date(),
           };
           user.messages = messages;

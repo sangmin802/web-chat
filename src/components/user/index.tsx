@@ -21,8 +21,10 @@ const User = ({ user, setSelectedUser, selectedUser }: Props) => {
       onClick={onClickHandler}
     >
       <div className="user-name">{user.userName}</div>
-      {user.messages && user.messages.size !== 0 && (
-        <div className="messages-size">{user.messages.size}</div>
+      {user.messages && user.messages.hasNewMessages !== 0 && (
+        <div className="messages-hasNewMessages">
+          {user.messages.hasNewMessages}
+        </div>
       )}
     </SArticle>
   );
