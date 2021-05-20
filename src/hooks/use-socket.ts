@@ -27,6 +27,10 @@ export function useSocket({
   rooms,
   setRooms,
 }: Props) {
+  const sendRoomMessage = useCallback((message, roomID) => {
+    socket.emit("room message", { message, roomID });
+  }, []);
+
   useEffect(() => {
     if (!isLogin) return;
     socket.on("users", (users: IUser[]) => {
@@ -83,6 +87,13 @@ export function useSocket({
       setUsers(newUsers);
     });
 
+    socket.on("room message", ({ message, roomID }) => {
+      const targetRoom = { ...rooms[roomID] };
+      targetRoom.messages.push(message);
+      if (!room) targetRoom.hasNewMessages++;
+      const newRooms = { ...rooms, [roomID]: targetRoom };
+      setRooms(newRooms);
+    });
     return () => {
       socket.off("users");
       socket.off("user connected");

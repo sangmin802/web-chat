@@ -11,6 +11,12 @@ interface Props {
 
 const RoomLoby = ({ room, setRoom, chats }: Props) => {
   const emitMessage = useCallback(message => {}, []);
+  const emitMessage = useCallback(
+    message => {
+      sendRoomMessage(message, roomID);
+    },
+    [sendRoomMessage, roomID]
+  );
 
   const goLobbyHandler = useCallback(() => {
     setRoom(null);
