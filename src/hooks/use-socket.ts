@@ -33,6 +33,11 @@ export function useSocket({
   const joinRoom = useCallback(roomID => {
     socket.emit("join room", roomID);
   }, []);
+
+  const leaveRoom = useCallback(roomID => {
+    socket.emit("leave room", roomID);
+  }, []);
+
   const sendRoomMessage = useCallback((message, roomID) => {
     socket.emit("room message", { message, roomID });
   }, []);
@@ -110,6 +115,22 @@ export function useSocket({
       const newRooms = { ...rooms, [roomID]: targetRoom };
       setRooms(newRooms);
       if (joinSelf) setRoom(roomID);
+    });
+
+    socket.on("leave room", ({ user, roomID }) => {
+      const targetRoom = { ...rooms[roomID] };
+      const newUsers = rooms[roomID].users.filter(
+        oUser => oUser.userID !== user.userID
+      );
+      const leaveSelf = socket.userID === user.userID;
+      if (leaveSelf) {
+        targetRoom.isJoined = false;
+        targetRoom.messages = [];
+      }
+      targetRoom.users = newUsers;
+      const newRooms = { ...rooms, [roomID]: targetRoom };
+      setRooms(newRooms);
+      if (leaveSelf) setRoom(null);
     });
 
     socket.on("room message", ({ message, roomID }) => {

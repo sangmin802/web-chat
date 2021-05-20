@@ -22,11 +22,9 @@ const RoomLoby = ({ room, setRoom, chats }: Props) => {
     setRoom(null);
   }, [setRoom]);
 
-  const leaveRoomHandler = useCallback(() => {}, [room]);
-
-  const users = useMemo(() => {
-    return [...room.users.values()];
-  }, [room.users]);
+  const leaveRoomHandler = useCallback(() => {
+    leaveRoom(roomID);
+  }, [leaveRoom, roomID]);
 
   return (
     <section className="message-room">
