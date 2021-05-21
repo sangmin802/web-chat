@@ -1,8 +1,9 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useMemo } from "react";
 import { socket } from "socket/index";
 import { IUser } from "types/user";
 import { IChat } from "types/chat";
 import { IRoom, IRooms } from "types/room";
+import { debounce } from "util/debounce";
 
 interface Props {
   setLogin(T: boolean): void;
@@ -172,23 +173,44 @@ export function useSocket({
       setRooms(newRooms);
     });
 
-    socket.on("delete room", roomID => {
-      // object에서 delete명령어는 아직 여러 이슈가 있다고 하여 사용x
-      const newRooms: IRooms = {};
-      Object.values(rooms).forEach(room => {
-        if (room.roomID === roomID) return;
-        newRooms[room.roomID] = room;
-      });
-      setRooms(newRooms);
-    });
     return () => {
       socket.off("room created");
       socket.off("join room");
       socket.off("leave room");
       socket.off("room message");
-      socket.off("delete room");
     };
   }, [joinRoom, setRooms, setRoom, rooms, setUsers, users, room]);
+
+  // 누적된 작업을 받아와서 일괄 처리함
+  const deleteRoom = useCallback(
+    arr => {
+      const newRooms: IRooms = {};
+      const roomVals = Object.values(rooms);
+      roomVals.forEach(room => {
+        if (arr.includes(room.roomID)) return;
+        newRooms[room.roomID] = room;
+      });
+      setRooms(newRooms);
+    },
+    [rooms, setRooms]
+  );
+
+  // 작업콜백함수와 시간을 갖고있는 debounce 메소드 반환
+  const deleteDebounceAct = useMemo(
+    () => debounce(deleteRoom, 20),
+    [deleteRoom]
+  );
+
+  useEffect(() => {
+    // delete room 호출로 roomID를 서버에서 받아오면 debounce 클로져에서 작업을 배열에 담음
+    // setTimeout으로 지정한 대기시간 내에 새로운 요청이 들어온다면
+    // 기존의 것은 clearTimeout 하고, 배열에 새 작업을 담고 다시 setTimout돌림
+    // 이후 반복
+    socket.on("delete room", deleteDebounceAct);
+    return () => {
+      socket.off("delete room");
+    };
+  }, [deleteDebounceAct]);
 
   useEffect(() => {
     socket.on("session", userID => {
