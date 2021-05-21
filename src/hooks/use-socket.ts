@@ -128,30 +128,28 @@ export function useSocket({
       setRooms(newRooms);
     });
 
-    socket.on("join room", ({ user, roomID }) => {
+    socket.on("join room", ({ users, userID, roomID }) => {
       const targetRoom = { ...rooms[roomID] };
-      const joinSelf = socket.userID === user.userID;
+      const joinSelf = socket.userID === userID;
       if (joinSelf) {
         targetRoom.isJoined = true;
         targetRoom.hasNewMessages = 0;
+        targetRoom.messages = [];
       }
-      targetRoom.users.push(user);
+      targetRoom.users = users;
       const newRooms = { ...rooms, [roomID]: targetRoom };
       setRooms(newRooms);
       if (joinSelf) setRoom(roomID);
     });
 
-    socket.on("leave room", ({ user, roomID }) => {
+    socket.on("leave room", ({ users, userID, roomID }) => {
       const targetRoom = { ...rooms[roomID] };
-      const newUsers = rooms[roomID].users.filter(
-        oUser => oUser.userID !== user.userID
-      );
-      const leaveSelf = socket.userID === user.userID;
+      const leaveSelf = socket.userID === userID;
       if (leaveSelf) {
         targetRoom.isJoined = false;
         targetRoom.messages = [];
       }
-      targetRoom.users = newUsers;
+      targetRoom.users = users;
       const newRooms = { ...rooms, [roomID]: targetRoom };
       setRooms(newRooms);
       if (leaveSelf) setRoom(null);
