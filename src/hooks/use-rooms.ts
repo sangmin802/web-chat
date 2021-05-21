@@ -6,11 +6,6 @@ export function useRooms() {
 
   const setRooms = useCallback(
     (rooms: IRooms) => {
-      // rooms.sort((a, b) => {
-      //   if (a.isJoined) return -1;
-      //   return 0;
-      // });
-      // setState(rooms);
       setState(rooms);
     },
     [setState]
