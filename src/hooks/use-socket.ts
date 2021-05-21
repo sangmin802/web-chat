@@ -163,30 +163,23 @@ export function useSocket({
       setRooms(newRooms);
     });
 
+    socket.on("delete room", roomID => {
+      // object에서 delete명령어는 아직 여러 이슈가 있다고 하여 사용x
+      const newRooms: IRooms = {};
+      Object.values(rooms).forEach(room => {
+        if (room.roomID === roomID) return;
+        newRooms[room.roomID] = room;
+      });
+      setRooms(newRooms);
+    });
     return () => {
-      socket.off("users");
-      socket.off("user connected");
-      socket.off("user disconnected");
-      socket.off("public message");
-      socket.off("private message");
       socket.off("room created");
       socket.off("join room");
       socket.off("leave room");
       socket.off("room message");
+      socket.off("delete room");
     };
-  }, [
-    isLogin,
-    users,
-    setUsers,
-    setChat,
-    selectedUser,
-    setSelectedUser,
-    joinRoom,
-    rooms,
-    setRooms,
-    room,
-    setRoom,
-  ]);
+  }, [joinRoom, setRooms, setRoom, rooms, setUsers, users, room]);
 
   useEffect(() => {
     socket.on("session", userID => {
