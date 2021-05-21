@@ -15,18 +15,9 @@ function App() {
   const { users, setUsers } = useUsers();
   const { room, setRoom } = useRoom();
   const { rooms, setRooms } = useRooms();
-  const { chats, setChat } = useChat();
+  const { chats, setChat } = useChat(room);
   const { selectedUser, setSelectedUser } = useSelectUser();
-  const {
-    connectSocekt,
-    sendPublicMessage,
-    sendPrivateMessage,
-    sendRoomMessage,
-    createRoom,
-    joinRoom,
-    leaveRoom,
-  } = useSocket({
-    isLogin,
+  const socketEvent = useSocket({
     setLogin,
     users,
     setUsers,
@@ -47,27 +38,27 @@ function App() {
   return (
     <div className="app">
       <main>
-        {!isLogin && <Login connectSocekt={connectSocekt} />}
+        {!isLogin && <Login connectSocekt={socketEvent.connectSocekt} />}
         {isLogin && selectedRoom && (
           <RoomLoby
             selectedRoom={selectedRoom}
             setRoom={setRoom}
-            leaveRoom={leaveRoom}
-            sendRoomMessage={sendRoomMessage}
+            leaveRoom={socketEvent.leaveRoom}
+            sendRoomMessage={socketEvent.sendRoomMessage}
           />
         )}
         {isLogin && !selectedRoom && users && (
           <Loby
             users={users}
             chats={chats}
-            sendPublicMessage={sendPublicMessage}
-            sendPrivateMessage={sendPrivateMessage}
+            sendPublicMessage={socketEvent.sendPublicMessage}
+            sendPrivateMessage={socketEvent.sendPrivateMessage}
             selectedUser={selectedUser}
             setSelectedUser={setSelectedUser}
             rooms={rooms}
             setRoom={setRoom}
-            joinRoom={joinRoom}
-            createRoom={createRoom}
+            joinRoom={socketEvent.joinRoom}
+            createRoom={socketEvent.createRoom}
           />
         )}
       </main>
