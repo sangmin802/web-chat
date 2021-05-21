@@ -5,7 +5,6 @@ import { IChat } from "types/chat";
 import { IRoom, IRooms } from "types/room";
 
 interface Props {
-  isLogin: boolean;
   setLogin(T: boolean): void;
   users: null | IUser[];
   setUsers(T: IUser[]): void;
@@ -19,7 +18,6 @@ interface Props {
 }
 
 export function useSocket({
-  isLogin,
   setLogin,
   users,
   setUsers,
@@ -64,8 +62,8 @@ export function useSocket({
     socket.emit("room message", { message, roomID });
   }, []);
 
+  // loby
   useEffect(() => {
-    if (!isLogin) return;
     socket.on("users", (users: IUser[]) => {
       const newUsers = users.map(user => {
         user.self = false;
@@ -122,6 +120,17 @@ export function useSocket({
       setUsers(newUsers);
     });
 
+    return () => {
+      socket.off("users");
+      socket.off("user connected");
+      socket.off("user disconnected");
+      socket.off("public message");
+      socket.off("private message");
+    };
+  }, [setUsers, setRooms, setChat, setSelectedUser, users, selectedUser]);
+
+  // room
+  useEffect(() => {
     socket.on("room created", (room: IRoom) => {
       if (room.creater === socket.userID) joinRoom(room.roomID);
       const newRooms = { ...rooms, [room.roomID]: room };
