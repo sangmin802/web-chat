@@ -1,17 +1,18 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
+import styled from "styled-components";
 import { IRoom } from "types/room";
 
 interface Props {
   room: IRoom;
-  setRoom(T: string): void;
+  enterRoom(T: string): void;
   joinRoom(T: string): void;
 }
 
-const Room = ({ room, setRoom, joinRoom }: Props) => {
+const Room = ({ room, enterRoom, joinRoom }: Props) => {
   const joinRoomHandler = useCallback(() => {
-    if (room.isJoined) return setRoom(room.roomID);
+    if (room.isJoined) return enterRoom(room.roomID);
     joinRoom(room.roomID);
-  }, [setRoom, joinRoom, room]);
+  }, [enterRoom, joinRoom, room]);
 
   const [primaryUser, size] = useMemo(() => {
     if (!room.isJoined) return [null, null];

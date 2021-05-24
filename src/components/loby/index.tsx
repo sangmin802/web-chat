@@ -15,6 +15,7 @@ interface Props {
   setSelectedUser(T: IUser): void;
   rooms: IRooms;
   setRoom(T: string): void;
+  setRooms(T: IRooms): void;
   createRoom(): void;
   joinRoom(T: string): void;
 }
@@ -28,6 +29,7 @@ const Loby = ({
   setSelectedUser,
   rooms,
   setRoom,
+  setRooms,
   createRoom,
   joinRoom,
 }: Props) => {
@@ -44,11 +46,21 @@ const Loby = ({
     createRoom();
   }, [createRoom]);
 
+  const enterRoom = useCallback(
+    roomID => {
+      const newRooms = { ...rooms };
+      newRooms[roomID] = { ...rooms[roomID], hasNewMessages: 0 };
+      setRoom(roomID);
+      setRooms(newRooms);
+    },
+    [rooms, setRoom, setRooms]
+  );
+
   const iterableRooms = useMemo(() => Object.values(rooms), [rooms]);
 
   return (
-    <>
-      <section className="users">
+    <SLoby>
+      <SUsers className="users">
         {users.map(user => (
           <User
             key={user.userID}
@@ -65,7 +77,7 @@ const Loby = ({
             <Room
               key={room.roomID}
               room={room}
-              setRoom={setRoom}
+              enterRoom={enterRoom}
               joinRoom={joinRoom}
             />
           ))}
