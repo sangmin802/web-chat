@@ -143,7 +143,6 @@ export function useSocket({
       const joinSelf = socket.userID === userID;
       if (joinSelf) {
         targetRoom.isJoined = true;
-        targetRoom.hasNewMessages = 0;
         targetRoom.messages = [];
       }
       targetRoom.users = users;
@@ -195,17 +194,12 @@ export function useSocket({
     [rooms, setRooms]
   );
 
-  // 작업콜백함수와 시간을 갖고있는 debounce 메소드 반환
   const deleteDebounceAct = useMemo(
     () => debounce(deleteRoom, 20),
     [deleteRoom]
   );
 
   useEffect(() => {
-    // delete room 호출로 roomID를 서버에서 받아오면 debounce 클로져에서 작업을 배열에 담음
-    // setTimeout으로 지정한 대기시간 내에 새로운 요청이 들어온다면
-    // 기존의 것은 clearTimeout 하고, 배열에 새 작업을 담고 다시 setTimout돌림
-    // 이후 반복
     socket.on("delete room", deleteDebounceAct);
     return () => {
       socket.off("delete room");
