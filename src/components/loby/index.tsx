@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from "react";
+import styled from "styled-components";
 import { IUser } from "types/user";
 import { IChat } from "types/chat";
 import { IRooms } from "types/room";
@@ -69,10 +70,14 @@ const Loby = ({
             selectedUser={selectedUser}
           />
         ))}
-      </section>
-      <section>
-        <button onClick={createRoomHandler}>방 만들기</button>
-        <section>
+      </SUsers>
+      <SChatAct>
+        <div className="button-container">
+          <button className="create-room" onClick={createRoomHandler}>
+            방 만들기
+          </button>
+        </div>
+        <section className="created-rooms">
           {iterableRooms.map(room => (
             <Room
               key={room.roomID}
@@ -82,12 +87,48 @@ const Loby = ({
             />
           ))}
         </section>
-      </section>
-      <Chat chats={chats} emitMessage={emitMessage}>
-        {selectedUser && <span>{selectedUser.userName} 에게</span>}
-      </Chat>
-    </>
+        <Chat chats={chats} emitMessage={emitMessage}>
+          {selectedUser && <span>{selectedUser.userName} 에게</span>}
+        </Chat>
+      </SChatAct>
+    </SLoby>
   );
 };
+
+const SLoby = styled.section`
+  display: flex;
+  height: 100%;
+`;
+
+const SUsers = styled.section`
+  width: 20%;
+  height: 100%;
+  background: #999;
+  padding: 0.2rem 0.4rem;
+  margin-right: 1%;
+`;
+
+const SChatAct = styled.section`
+  width: 79%;
+  height : 100%;
+  display: flex;
+  padding: 0.2rem 0.4rem;
+  flex-direction: column;
+  .button-container {
+    .create-room {
+      display: inline-block;
+      width: fit-content;
+      background: transparent;
+      border 1px solid #666;
+      border-radius : 3px;
+      padding : .1rem .3rem;
+      float : right;
+    }
+  }
+  .created-rooms {
+    display : flex;
+    flex-wrap : wrap;
+  }
+`;
 
 export default Loby;
