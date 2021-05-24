@@ -92,7 +92,7 @@ interface room {
 - [x] 🔴 `join room` 수신
 
   - [x] 🔴 호출한 `socket.userID`는 `socket.join(roomID)`로 참가
-  - [ ] 🔴 현재 해당 `roomID`에 접속중인 다른 `socket`들을 찾고, `userStore`에서 검색하여 전달
+  - [x] 🔴 현재 해당 `roomID`에 접속중인 다른 `socket`들을 찾고, `userStore`에서 검색하여 전달
   - [x] 🔴 추가된 클라이언트 정보 전달. `join room` 호출
   - [x] 🔴 해당 `roomID`에 가입한 유저들에게만 `.to('roomID').emit`으로 입장 메시지 알림 `room message`
 
@@ -100,7 +100,7 @@ interface room {
 
   - [x] 🔵 `room`에 접속한 `userID`가 `socket.userID`와 동일, 즉 나 이고, `isJoined : false`상태라면 `isJoined : true`로 변경
   - [x] 🔵 `room`에 접속한 `userID`가 `socket.userID`와 동일, 즉 나라면 `room-loby` 컴포넌트 활성화
-  - [ ] 🔵 `room` 정보에 현재 `join`되어있는 `socket`들을 할당
+  - [x] 🔵 `room` 정보에 현재 `join`되어있는 `socket`들을 할당
   - [x] 🔵 `rooms` 상태값에 해당 `room` 정보 추가
 
 - [x] 🔵 방 나가기.
