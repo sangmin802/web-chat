@@ -1,4 +1,6 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
+import "styles/global.css";
+import styled from "styled-components";
 import { useLogin } from "hooks/use-login";
 import { useSocket } from "hooks/use-socket";
 import { useUsers } from "hooks/use-users";
@@ -37,7 +39,7 @@ function App() {
 
   return (
     <div className="app">
-      <main>
+      <SMain>
         {!isLogin && <Login connectSocekt={socketEvent.connectSocekt} />}
         {isLogin && selectedRoom && (
           <RoomLoby
@@ -57,13 +59,18 @@ function App() {
             setSelectedUser={setSelectedUser}
             rooms={rooms}
             setRoom={setRoom}
+            setRooms={setRooms}
             joinRoom={socketEvent.joinRoom}
             createRoom={socketEvent.createRoom}
           />
         )}
-      </main>
+      </SMain>
     </div>
   );
 }
+
+const SMain = styled.main`
+  height: 100vh;
+`;
 
 export default App;
