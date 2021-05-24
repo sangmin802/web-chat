@@ -38,4 +38,14 @@ const Room = ({ room, setRoom, joinRoom }: Props) => {
   );
 };
 
+const SRoom = styled.article<{ isJoined: boolean }>`
+width : calc(98% / 3);
+  border : 1px solid;
+  border-color : ${({ isJoined }) => (isJoined ? "tomato" : "#444")}}
+  border-radius : 3px;
+  margin-right : 1%;
+  padding : .2rem .4rem;
+
+`;
+
 export default Room;
