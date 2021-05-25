@@ -54,6 +54,13 @@
   > `socket.join(room)`?
 
 - [x] 🔴 `socket middleware`를 통해, `socket.id`를 `socket.userID`와 동일하게하여 추후 `room`에 `join`중인 `socket.id`로 `userStore`를 조회할 수 있도록 함
+- [ ] 🔵 `loby` 컴포넌트에서만 방생성, 방삭제, 유저접속을 수신함 `room`에서는 감지 못함.
+- [ ] 🔵 `room`과 `loby` 모두 `room message`, `join room`, `leave room`을 감지할 수 있음
+- [ ] 🔵 `room`이동시, 해당 `room`의 `messages` 속성 값을 `chat`속성에 담고, `room message` 가 수신될 때, `rooms[roomID].messages`와 `chat` 두곳에 모두 담기도록 함
+  > `room`에서도 `private message`를 확인할 수 있도록 하기 위해서
+- [ ] 🔵 `private message`는 `loby` `room` 모두 가능하며, 귓속말 첨자인 `~에게` 클릭 시, `selected user` 활성화
+- [ ] 🔵 초기 로그인을 제외하고, `loby`컴포넌트가 마운트 될 때마다, 서버에서 유저리스트와 방리스트를 받아옴
+  - [ ] 🔵 단 방리스트의 경우, `room message`, `join room`, `leave room`과같은 변화를 반영하고있는 클라이언트의 방리스트와 `delete`, `create`를 반영한 서버의 방리스트를 융합하기 위해 서버측 방 리스트를 순회하여 `roomID` 클라이언트 방 리스트를 매칭시키고, 새로운 방이라면 서버의 방을 사용. 제거된 방이라면 자연스럽게 매칭 안되게 함
 
 ### 🥯 room
 
