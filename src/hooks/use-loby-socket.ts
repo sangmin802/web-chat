@@ -6,7 +6,6 @@ import { IRoom, IRooms } from "types/room";
 import { debounce } from "util/debounce";
 
 interface Props {
-  setLogin(T: boolean): void;
   users: null | IUser[];
   setUsers(T: IUser[]): void;
   setChat(T: IChat): void;
@@ -14,12 +13,10 @@ interface Props {
   setSelectedUser(T: null | IUser): void;
   rooms: IRooms;
   setRooms(T: IRooms): void;
-  room: null | string;
   setRoom(T: null | string): void;
 }
 
-export function useSocket({
-  setLogin,
+export function useLobySocket({
   users,
   setUsers,
   setChat,
@@ -27,18 +24,7 @@ export function useSocket({
   setSelectedUser,
   rooms,
   setRooms,
-  room,
-  setRoom,
 }: Props) {
-  const connectSocekt = useCallback(
-    userName => {
-      setLogin(true);
-      socket.auth = { userName };
-      socket.connect();
-    },
-    [setLogin]
-  );
-
   const sendPublicMessage = useCallback(message => {
     socket.emit("public message", message);
   }, []);
@@ -55,31 +41,8 @@ export function useSocket({
     socket.emit("join room", roomID);
   }, []);
 
-  const leaveRoom = useCallback(roomID => {
-    socket.emit("leave room", roomID);
-  }, []);
-
-  const sendRoomMessage = useCallback((message, roomID) => {
-    socket.emit("room message", { message, roomID });
-  }, []);
-
-  // loby
+  // 로비 내부 채팅
   useEffect(() => {
-    socket.on("users", (users: IUser[]) => {
-      const newUsers = users.map(user => {
-        user.self = false;
-        if (user.userID === socket.userID) user.self = true;
-        return user;
-      });
-      setUsers(newUsers);
-    });
-
-    socket.on("rooms", (rooms: IRoom[]) => {
-      const newRooms: IRooms = {};
-      rooms.forEach(room => (newRooms[room.roomID] = room));
-      setRooms(newRooms);
-    });
-
     socket.on("user connected", user => {
       const newUsers = [...(users as IUser[]), user];
       setUsers(newUsers);
@@ -100,10 +63,6 @@ export function useSocket({
       setUsers(newUsers);
     });
 
-    socket.on("public message", message => {
-      setChat({ ...message });
-    });
-
     socket.on("private message", message => {
       const fromSelf = message.from.userID === socket.userID ? true : false;
       setChat({ ...message, fromSelf });
@@ -121,16 +80,19 @@ export function useSocket({
       setUsers(newUsers);
     });
 
+    socket.on("public message", message => {
+      setChat({ ...message });
+    });
+
     return () => {
-      socket.off("users");
       socket.off("user connected");
       socket.off("user disconnected");
-      socket.off("public message");
       socket.off("private message");
+      socket.off("public message");
     };
-  }, [setUsers, setRooms, setChat, setSelectedUser, users, selectedUser]);
+  }, [setChat, setUsers, setSelectedUser, users, selectedUser]);
 
-  // room
+  // 방 관련
   useEffect(() => {
     socket.on("room created", (room: IRoom) => {
       if (room.creater === socket.userID) joinRoom(room.roomID);
@@ -138,49 +100,12 @@ export function useSocket({
       setRooms(newRooms);
     });
 
-    socket.on("join room", ({ users, userID, roomID }) => {
-      const targetRoom = { ...rooms[roomID] };
-      const joinSelf = socket.userID === userID;
-      if (joinSelf) {
-        targetRoom.isJoined = true;
-        targetRoom.messages = [];
-      }
-      targetRoom.users = users;
-      const newRooms = { ...rooms, [roomID]: targetRoom };
-      setRooms(newRooms);
-      if (joinSelf) setRoom(roomID);
-    });
-
-    socket.on("leave room", ({ users, userID, roomID }) => {
-      const targetRoom = { ...rooms[roomID] };
-      const leaveSelf = socket.userID === userID;
-      if (leaveSelf) {
-        targetRoom.isJoined = false;
-        targetRoom.messages = [];
-      }
-      targetRoom.users = users;
-      const newRooms = { ...rooms, [roomID]: targetRoom };
-      setRooms(newRooms);
-      if (leaveSelf) setRoom(null);
-    });
-
-    socket.on("room message", ({ message, roomID }) => {
-      const targetRoom = { ...rooms[roomID] };
-      targetRoom.messages.push(message);
-      if (!room) targetRoom.hasNewMessages++;
-      const newRooms = { ...rooms, [roomID]: targetRoom };
-      setRooms(newRooms);
-    });
-
     return () => {
       socket.off("room created");
-      socket.off("join room");
-      socket.off("leave room");
-      socket.off("room message");
     };
-  }, [joinRoom, setRooms, setRoom, rooms, setUsers, users, room]);
+  }, [setRooms, rooms]);
 
-  // 누적된 작업을 받아와서 일괄 처리함
+  // 방 제거 debounce
   const deleteRoom = useCallback(
     arr => {
       const newRooms: IRooms = {};
@@ -217,12 +142,9 @@ export function useSocket({
   }, []);
 
   return {
-    connectSocekt,
     sendPublicMessage,
     sendPrivateMessage,
-    sendRoomMessage,
     createRoom,
     joinRoom,
-    leaveRoom,
   };
 }
