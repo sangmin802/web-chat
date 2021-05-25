@@ -6,7 +6,6 @@ export function useSelectUser() {
 
   const setSelectedUser = useCallback(
     (user: null | IUser) => {
-      if (user) user.messages.hasNewMessages = 0;
       setState(user);
     },
     [setState]

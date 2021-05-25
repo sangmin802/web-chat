@@ -3,17 +3,30 @@ import styled from "styled-components";
 import { IUser } from "types/user";
 
 interface Props {
+  users: IUser[];
+  setUsers(T: IUser[]): void;
   user: IUser;
   setSelectedUser(T: null | IUser): void;
   selectedUser: null | IUser;
 }
 
-const User = ({ user, setSelectedUser, selectedUser }: Props) => {
+const User = ({
+  user,
+  setSelectedUser,
+  selectedUser,
+  users,
+  setUsers,
+}: Props) => {
   const onClickHandler = useCallback(() => {
     if (user.self) return;
-    const toggle = selectedUser?.userID === user.userID ? null : user;
+    const toggle = selectedUser?.userID === user.userID ? null : { ...user };
+    const newUsers = users.map(oUser => {
+      if (oUser.userID === user.userID) oUser.messages.hasNewMessages = 0;
+      return oUser;
+    });
     setSelectedUser(toggle);
-  }, [setSelectedUser, user, selectedUser]);
+    setUsers(newUsers);
+  }, [setSelectedUser, user, selectedUser, users, setUsers]);
 
   return (
     <SArticle
