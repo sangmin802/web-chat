@@ -1,16 +1,16 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import "styles/global.css";
 import styled from "styled-components";
 import { useLogin } from "hooks/use-login";
-import { useSocket } from "hooks/use-socket";
+import { useAppSocket } from "hooks/use-app-socket";
 import { useUsers } from "hooks/use-users";
 import { useChat } from "hooks/use-chat";
 import { useRoom } from "hooks/use-room";
 import { useRooms } from "hooks/use-rooms";
 import { useSelectUser } from "hooks/use-select-user";
-import Login from "components/login/index";
-import Loby from "components/loby";
-import RoomLoby from "components/room-loby";
+import Login from "pages/login/index";
+import Loby from "pages/loby";
+import RoomLoby from "pages/room-loby";
 
 function App() {
   const { isLogin, setLogin } = useLogin();
@@ -19,13 +19,9 @@ function App() {
   const { rooms, setRooms } = useRooms();
   const { chats, setChat } = useChat(room);
   const { selectedUser, setSelectedUser } = useSelectUser();
-  const socketEvent = useSocket({
-    setLogin,
+  const SE = useAppSocket({
     users,
     setUsers,
-    setChat,
-    selectedUser,
-    setSelectedUser,
     rooms,
     setRooms,
     room,
@@ -40,28 +36,26 @@ function App() {
   return (
     <div className="app">
       <SMain>
-        {!isLogin && <Login connectSocekt={socketEvent.connectSocekt} />}
+        {!isLogin && <Login setLogin={setLogin} />}
         {isLogin && selectedRoom && (
           <RoomLoby
             selectedRoom={selectedRoom}
             setRoom={setRoom}
-            leaveRoom={socketEvent.leaveRoom}
-            sendRoomMessage={socketEvent.sendRoomMessage}
+            leaveRoom={SE.leaveRoom}
+            sendRoomMessage={SE.sendRoomMessage}
           />
         )}
         {isLogin && !selectedRoom && users && (
           <Loby
             users={users}
+            setUsers={setUsers}
             chats={chats}
-            sendPublicMessage={socketEvent.sendPublicMessage}
-            sendPrivateMessage={socketEvent.sendPrivateMessage}
+            setChat={setChat}
             selectedUser={selectedUser}
             setSelectedUser={setSelectedUser}
+            setRooms={setRooms}
             rooms={rooms}
             setRoom={setRoom}
-            setRooms={setRooms}
-            joinRoom={socketEvent.joinRoom}
-            createRoom={socketEvent.createRoom}
           />
         )}
       </SMain>
