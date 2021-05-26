@@ -12,3 +12,7 @@ export interface IUser {
     recent: Date;
   };
 }
+
+export interface IUsers {
+  [key: string]: IUser;
+}
