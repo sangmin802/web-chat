@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import "styles/global.css";
 import styled from "styled-components";
 import { useLogin } from "hooks/use-login";
@@ -11,13 +11,14 @@ import { useSelectUser } from "hooks/use-select-user";
 import Login from "pages/login/index";
 import Loby from "pages/loby";
 import RoomLoby from "pages/room-loby";
+import { Debounce } from "util/debounce";
 
 function App() {
   const { isLogin, setLogin } = useLogin();
   const { users, setUsers } = useUsers();
   const { room, setRoom } = useRoom();
   const { rooms, setRooms } = useRooms();
-  const { chats, setChat } = useChat(room);
+  const { chats, setChat } = useChat();
   const { selectedUser, setSelectedUser } = useSelectUser();
   const roomsDebounce = useMemo(
     () => new Debounce(rooms, setRooms, 20),
@@ -30,6 +31,8 @@ function App() {
     setRooms,
     room,
     setRoom,
+    setChat,
+    roomsDebounce,
   });
 
   const selectedRoom = useMemo(() => {

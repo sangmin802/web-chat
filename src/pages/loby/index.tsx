@@ -1,23 +1,28 @@
 import { useCallback, useMemo } from "react";
 import styled from "styled-components";
-import { IUser } from "types/user";
+import { IUsers, IUser } from "types/user";
 import { IChat } from "types/chat";
 import { IRooms } from "types/room";
 import { useLobySocket } from "hooks/use-loby-socket";
 import User from "components/user/index";
 import Chat from "components/chat/index";
 import Room from "components/room/index";
+import { Debounce } from "util/debounce";
+
+type emitMessage = (T: IChat) => void;
 
 interface Props {
-  users: IUser[];
-  setUsers(T: IUser[]): void;
+  users: IUsers;
+  setUsers(T: IUsers): void;
   chats: IChat[];
-  setChat(T: IChat): void;
+  setChat(T: IChat | IChat[]): void;
   selectedUser: null | IUser;
   setSelectedUser(T: IUser): void;
   rooms: IRooms;
   setRoom(T: string): void;
   setRooms(T: IRooms): void;
+  emitMessage(T: emitMessage, U: IChat): void;
+  roomsDebounce: Debounce;
 }
 
 const Loby = (props: Props) => {
@@ -70,7 +75,7 @@ const Loby = (props: Props) => {
       </SUsers>
       <SChatAct>
         <div className="button-container">
-          <button className="create-room" onClick={createRoomHandler}>
+          <button className="create-room" onClick={SE.createRoom}>
             방 만들기
           </button>
         </div>

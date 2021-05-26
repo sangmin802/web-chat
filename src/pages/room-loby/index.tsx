@@ -39,7 +39,8 @@ const RoomLoby = ({
 
   const leaveRoomHandler = useCallback(() => {
     leaveRoom(roomID);
-  }, [leaveRoom, roomID]);
+    goLoby();
+  }, [leaveRoom, roomID, goLoby]);
 
   return (
     <section className="message-room">

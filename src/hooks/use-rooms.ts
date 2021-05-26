@@ -6,7 +6,7 @@ export function useRooms() {
 
   const setRooms = useCallback(
     (rooms: IRooms) => {
-      setState(rooms);
+      setState({ ...rooms });
     },
     [setState]
   );
