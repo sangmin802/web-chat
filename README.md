@@ -54,13 +54,12 @@
   > `socket.join(room)`?
 
 - [x] 🔴 `socket middleware`를 통해, `socket.id`를 `socket.userID`와 동일하게하여 추후 `room`에 `join`중인 `socket.id`로 `userStore`를 조회할 수 있도록 함
-- [ ] 🔵 `loby` 컴포넌트에서만 방생성, 방삭제, 유저접속을 수신함 `room`에서는 감지 못함.
-- [ ] 🔵 `room`과 `loby` 모두 `room message`, `join room`, `leave room`을 감지할 수 있음
-- [ ] 🔵 `room`이동시, 해당 `room`의 `messages` 속성 값을 `chat`속성에 담고, `room message` 가 수신될 때, `rooms[roomID].messages`와 `chat` 두곳에 모두 담기도록 함
-  > `room`에서도 `private message`를 확인할 수 있도록 하기 위해서
+- [x] 🔵 `loby` 컴포넌트에서만 방생성, 방삭제, 유저접속을 수신함 `room`에서는 감지 못함.
+- [x] 🔵 `join`한 `room`에 한해서 `room`과 `loby` 모두 `room message`, `join room`, `leave room`을 감지할 수 있음
+- [x] 🔵 `room`이동시, `private messages`는 해당 `room`에서도 보이도록 함
 - [ ] 🔵 `private message`는 `loby` `room` 모두 가능하며, 귓속말 첨자인 `~에게` 클릭 시, `selected user` 활성화
 - [ ] 🔵 초기 로그인을 제외하고, `loby`컴포넌트가 마운트 될 때마다, 서버에서 유저리스트와 방리스트를 받아옴
-  - [ ] 🔵 단 방리스트의 경우, `room message`, `join room`, `leave room`과같은 변화를 반영하고있는 클라이언트의 방리스트와 `delete`, `create`를 반영한 서버의 방리스트를 융합하기 위해 서버측 방 리스트를 순회하여 `roomID` 클라이언트 방 리스트를 매칭시키고, 새로운 방이라면 서버의 방을 사용. 제거된 방이라면 자연스럽게 매칭 안되게 함
+  - [x] 🔵 단 방리스트의 경우, `room message`, `join room`, `leave room`과같은 변화를 반영하고있는 클라이언트의 방리스트와 `delete`, `create`를 반영한 서버의 방리스트를 융합하기 위해 서버측 방 리스트를 순회하여 `roomID` 클라이언트 방 리스트를 매칭시키고, 새로운 방이라면 서버의 방을 사용. 제거된 방이라면 자연스럽게 매칭 안되게 함
 
 ### 🥯 room
 
@@ -146,60 +145,11 @@ interface room {
 
 ### 서버의 이벤트 호출 매우 짧은시간내에 중첩
 
-- [x] 🔴 컴포넌트 언마운트 시, 나만 남아있던 `room`이였다면, 해당 `room` 삭제
-
-해당 문제에 있어, 여러개의 방이 동시에 지워지도록 한다면 `socket.off`를 하고 다시 이벤트를 `socket.on` 하는 속도가 서버에서 보내는 이벤트 속도를 따라가질 못하여 몇몇개는 남는 상황임
-
-따라서, 시간 내에 요청이 들어온다면 작업을 멈추는 `debounce`사용
-
-- `delete room` 파트
-
-```ts
-// 누적된 작업을 받아와서 일괄 처리함
-const deleteRoom = useCallback(
-  arr => {
-    const newRooms: IRooms = {};
-    const roomVals = Object.values(rooms);
-    roomVals.forEach(room => {
-      if (arr.includes(room.roomID)) return;
-      newRooms[room.roomID] = room;
-    });
-    setRooms(newRooms);
-  },
-  [rooms, setRooms]
-);
-
-// 작업콜백함수와 시간을 갖고있는 debounce 메소드 반환
-const deleteDebounceAct = useMemo(() => debounce(deleteRoom, 20), [deleteRoom]);
-
-useEffect(() => {
-  // delete room 호출로 roomID를 서버에서 받아오면 debounce 클로져에서 작업을 배열에 담음
-  // setTimeout으로 지정한 대기시간 내에 새로운 요청이 들어온다면
-  // 기존의 것은 clearTimeout 하고, 배열에 새 작업을 담고 다시 setTimout돌림
-  // 이후 반복
-  socket.on("delete room", deleteDebounceAct);
-  return () => {
-    socket.off("delete room");
-  };
-}, [deleteDebounceAct]);
-```
-
-- `debounce` 파트
-
-```ts
-export function debounce(cb: any, t: number) {
-  let timer: any;
-  const arr: any[] = [];
-  function debounceAct(work: any) {
-    if (timer) {
-      console.log("새로운 요청으로 인해 대기합니다");
-      clearTimeout(timer);
-    }
-    arr.push(work);
-    timer = setTimeout(() => {
-      cb(arr);
-    }, t);
-  }
-  return debounceAct;
-}
-```
+- 실시간 동일한 상태값을 변경하면서, 매우 빠른 시간내에 다시 실행된다면 `useCallback`으로 참조하고 있는 상태값이 최신상태를 유지하지 못하는 상황이 발생했음.
+  > `a` 메소드를 통해, 업데이트된것을 바로 이후에 실행되는 `b` 메소드에서는 구형의 상태값을 사용함
+- `a` 라는 상태값을 변경시키는 메소드들의 경우, 일정 시간 내에 실행된다면 모두 변화가 없는 같은 상황의 상태값을 순차적으로 사용하도록 처리함.
+  1. `useMemo`로 현재의 상태값을 기억하는 인스턴스 생성
+  2. `a` 메소드가 실행된 다음 특정 시간 내 `b` 메소드가 실행되면 작업 배열에 담기.
+  3. 특정 시간 내 다른 요청이 접수되지 않을 경우 기억해놓은 상태값을 작업배열이 순차적으로 진행
+  4. 인스턴스 내에 기억해놓은 상태값을 최신으로 변경시킴
+  5. 이후에 일괄 `setState` 처리 하여, `useMemo`를 통해 최신의 상태값을 기억하는 인스턴스 생성
