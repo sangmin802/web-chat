@@ -30,29 +30,24 @@ const Loby = (props: Props) => {
     rooms,
     setRooms,
     setRoom,
+    emitMessage,
   } = props;
 
   const SE = useLobySocket(props);
 
-  const emitMessage = useCallback(
-    message => {
-      if (selectedUser)
-        SE.sendPrivateMessage({ content: message, to: selectedUser });
-      if (!selectedUser) SE.sendPublicMessage(message);
+  const emitMessageHandler = useCallback(
+    content => {
+      emitMessage(SE.sendPublicMessage, { content });
     },
-    [SE.sendPublicMessage, selectedUser, SE.sendPrivateMessage]
+    [emitMessage, SE]
   );
-
-  const createRoomHandler = useCallback(() => {
-    SE.createRoom();
-  }, [SE.createRoom]);
 
   const enterRoom = useCallback(
     roomID => {
       const newRooms = { ...rooms };
       newRooms[roomID] = { ...rooms[roomID], hasNewMessages: 0 };
-      setRoom(roomID);
       setRooms(newRooms);
+      setRoom(roomID);
     },
     [rooms, setRoom, setRooms]
   );
@@ -89,7 +84,7 @@ const Loby = (props: Props) => {
             />
           ))}
         </section>
-        <Chat chats={chats} emitMessage={emitMessage}>
+        <Chat chats={chats} emitMessage={emitMessageHandler}>
           {selectedUser && <span>{selectedUser.userName} 에게</span>}
         </Chat>
       </SChatAct>

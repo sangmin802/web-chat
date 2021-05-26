@@ -37,6 +37,15 @@ function App() {
     return rooms[room];
   }, [rooms, room]);
 
+  const emitMessage = useCallback(
+    (sendMessage, args) => {
+      if (selectedUser)
+        SE.sendPrivateMessage({ content: args.content, to: selectedUser });
+      if (!selectedUser) sendMessage(args);
+    },
+    [selectedUser, SE]
+  );
+
   return (
     <div className="app">
       <SMain>
@@ -47,6 +56,9 @@ function App() {
             setRoom={setRoom}
             leaveRoom={SE.leaveRoom}
             sendRoomMessage={SE.sendRoomMessage}
+            selectedUser={selectedUser}
+            emitMessage={emitMessage}
+            goLoby={SE.goLoby}
           />
         )}
         {isLogin && !selectedRoom && users && (
@@ -60,6 +72,8 @@ function App() {
             setRooms={setRooms}
             rooms={rooms}
             setRoom={setRoom}
+            emitMessage={emitMessage}
+            roomsDebounce={roomsDebounce}
           />
         )}
       </SMain>

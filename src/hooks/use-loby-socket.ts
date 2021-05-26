@@ -1,19 +1,18 @@
-import { useEffect, useCallback, useMemo } from "react";
+import { useEffect, useCallback } from "react";
 import { socket } from "socket/index";
-import { IUser } from "types/user";
+import { IUser, IUsers } from "types/user";
 import { IChat } from "types/chat";
 import { IRoom, IRooms } from "types/room";
-import { debounce } from "util/debounce";
+import { Debounce } from "util/debounce";
 
 interface Props {
-  users: null | IUser[];
-  setUsers(T: IUser[]): void;
+  users: IUsers;
+  setUsers(T: IUsers): void;
   setChat(T: IChat): void;
   selectedUser: null | IUser;
   setSelectedUser(T: null | IUser): void;
-  rooms: IRooms;
-  setRooms(T: IRooms): void;
   setRoom(T: null | string): void;
+  roomsDebounce: Debounce;
 }
 
 export function useLobySocket({
@@ -22,15 +21,10 @@ export function useLobySocket({
   setChat,
   selectedUser,
   setSelectedUser,
-  rooms,
-  setRooms,
+  roomsDebounce,
 }: Props) {
-  const sendPublicMessage = useCallback(message => {
-    socket.emit("public message", message);
-  }, []);
-
-  const sendPrivateMessage = useCallback(message => {
-    socket.emit("private message", message);
+  const sendPublicMessage = useCallback(({ content }) => {
+    socket.emit("public message", content);
   }, []);
 
   const createRoom = useCallback(() => {

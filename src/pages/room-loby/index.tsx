@@ -1,12 +1,18 @@
-import React, { useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { IRoom } from "types/room";
+import { IUser } from "types/user";
 import Chat from "components/chat";
+
+type emitMessage = (T: string, U: string) => void;
 
 interface Props {
   selectedRoom: IRoom;
   setRoom(T: null): void;
   leaveRoom(T: string): void;
   sendRoomMessage(T: string, U: string): void;
+  selectedUser: null | IUser;
+  emitMessage(T: emitMessage, U: { content: string; roomID: string }): void;
+  goLoby(): void;
 }
 
 const RoomLoby = ({
@@ -14,18 +20,22 @@ const RoomLoby = ({
   setRoom,
   leaveRoom,
   sendRoomMessage,
+  selectedUser,
+  emitMessage,
+  goLoby,
 }: Props) => {
   const roomID = useMemo(() => selectedRoom.roomID, [selectedRoom.roomID]);
-  const emitMessage = useCallback(
-    message => {
-      sendRoomMessage(message, roomID);
+  const emitMessageHandler = useCallback(
+    content => {
+      emitMessage(sendRoomMessage, { content, roomID });
     },
-    [sendRoomMessage, roomID]
+    [emitMessage, sendRoomMessage, roomID]
   );
 
   const goLobbyHandler = useCallback(() => {
     setRoom(null);
-  }, [setRoom]);
+    goLoby();
+  }, [setRoom, goLoby]);
 
   const leaveRoomHandler = useCallback(() => {
     leaveRoom(roomID);

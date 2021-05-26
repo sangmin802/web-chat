@@ -119,6 +119,38 @@ export function useAppSocket({
     };
   }, [onJoinRoom, onLeaveRoom, onRoomMessage]);
 
+  // 귓속말은 상시 감지
+  useEffect(() => {
+    socket.on("private message", message => {
+      const fromSelf = message.from.userID === socket.userID ? true : false;
+      setChat({ ...message, fromSelf });
+      if (room) {
+        const newRooms = { ...rooms };
+        newRooms[room].messages.push({ ...message, fromSelf });
+        setRooms(newRooms);
+      }
+      if (fromSelf) return;
+      const newUsers: IUsers = {};
+      const userVals = Object.values(users);
+      userVals.forEach(user => {
+        if (user.userID === message.from.userID) {
+          const messages = {
+            hasNewMessages: user.messages.hasNewMessages + 1,
+            recent: new Date(),
+          };
+          user.messages = messages;
+        }
+        newUsers[user.userID] = user;
+      });
+
+      setUsers(newUsers);
+    });
+
+    return () => {
+      socket.off("private message");
+    };
+  }, [setChat, setUsers, users, setRooms, rooms, room]);
+
   // userID 할당 및 소킷 종료
   useEffect(() => {
     socket.on("session", userID => {
