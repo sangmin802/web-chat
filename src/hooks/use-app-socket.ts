@@ -31,10 +31,11 @@ export function useAppSocket({
   // 초기 유저리스트, 방리스트 수령
   useEffect(() => {
     socket.on("users", (users: IUser[]) => {
-      const newUsers = users.map(user => {
+      const newUsers: IUsers = {};
+      users.forEach(user => {
         user.self = false;
         if (user.userID === socket.userID) user.self = true;
-        return user;
+        newUsers[user.userID] = user;
       });
       setUsers(newUsers);
     });

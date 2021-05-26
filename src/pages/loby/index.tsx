@@ -58,10 +58,11 @@ const Loby = (props: Props) => {
   );
 
   const iterableRooms = useMemo(() => Object.values(rooms), [rooms]);
+  const iterableUsers = useMemo(() => Object.values(users), [users]);
   return (
     <SLoby>
       <SUsers className="users">
-        {users.map(user => (
+        {iterableUsers.map(user => (
           <User
             key={user.userID}
             user={user}

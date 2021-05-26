@@ -44,7 +44,8 @@ export function useLobySocket({
   // 로비 내부 채팅
   useEffect(() => {
     socket.on("user connected", user => {
-      const newUsers = [...(users as IUser[]), user];
+      const newUsers = { ...users };
+      newUsers[user.userID] = user;
       setUsers(newUsers);
       setChat({ content: `${user.userName}님이 입장하셨습니다.` });
     });
@@ -56,27 +57,13 @@ export function useLobySocket({
         content = `귓속말 대상인 ${userName}님이 퇴장하셨습니다.`;
         setSelectedUser(null);
       }
-      const newUsers = (users as IUser[]).filter(
-        user => user.userID !== userID
-      );
-      setChat({ content });
-      setUsers(newUsers);
-    });
-
-    socket.on("private message", message => {
-      const fromSelf = message.from.userID === socket.userID ? true : false;
-      setChat({ ...message, fromSelf });
-      if (fromSelf) return;
-      const newUsers = (users as IUser[]).map(user => {
-        if (user.userID === message.from.userID) {
-          const messages = {
-            hasNewMessages: user.messages.hasNewMessages + 1,
-            recent: new Date(),
-          };
-          user.messages = messages;
-        }
-        return user;
+      const newUsers: IUsers = {};
+      const userVals = Object.values(users);
+      userVals.forEach(user => {
+        if (user.userID !== userID) newUsers[user.userID] = user;
       });
+
+      setChat({ content });
       setUsers(newUsers);
     });
 

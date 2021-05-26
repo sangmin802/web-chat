@@ -1,8 +1,6 @@
 import { useCallback, useRef } from "react";
 import styled from "styled-components";
 import { useLoginSocket } from "hooks/use-login-socket";
-import { IRooms } from "types/room";
-import { IUser } from "types/user";
 
 interface Props {
   setLogin(T: boolean): void;

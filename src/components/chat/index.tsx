@@ -1,6 +1,5 @@
 import { useCallback, useRef } from "react";
 import { IChat } from "types/chat";
-import { IUser } from "types/user";
 import Message from "components/message/index";
 
 interface Props {

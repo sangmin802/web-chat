@@ -1,10 +1,10 @@
 import { useCallback } from "react";
 import styled from "styled-components";
-import { IUser } from "types/user";
+import { IUsers, IUser } from "types/user";
 
 interface Props {
-  users: IUser[];
-  setUsers(T: IUser[]): void;
+  users: IUsers;
+  setUsers(T: IUsers): void;
   user: IUser;
   setSelectedUser(T: null | IUser): void;
   selectedUser: null | IUser;
@@ -20,10 +20,8 @@ const User = ({
   const onClickHandler = useCallback(() => {
     if (user.self) return;
     const toggle = selectedUser?.userID === user.userID ? null : { ...user };
-    const newUsers = users.map(oUser => {
-      if (oUser.userID === user.userID) oUser.messages.hasNewMessages = 0;
-      return oUser;
-    });
+    const newUsers = { ...users };
+    newUsers[user.userID].messages.hasNewMessages = 0;
     setSelectedUser(toggle);
     setUsers(newUsers);
   }, [setSelectedUser, user, selectedUser, users, setUsers]);
