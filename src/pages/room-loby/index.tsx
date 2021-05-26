@@ -44,7 +44,9 @@ const RoomLoby = ({
           <div key={user.userID}>{user.userName}</div>
         ))}
       </div>
-      <Chat chats={selectedRoom.messages} emitMessage={emitMessage} />
+      <Chat chats={selectedRoom.messages} emitMessage={emitMessageHandler}>
+        {selectedUser && <span>{selectedUser.userName} 에게</span>}
+      </Chat>
     </section>
   );
 };
