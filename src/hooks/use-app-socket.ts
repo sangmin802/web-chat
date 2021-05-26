@@ -1,15 +1,19 @@
 import { useEffect, useCallback } from "react";
 import { socket } from "socket/index";
-import { IUser } from "types/user";
+import { IUser, IUsers } from "types/user";
+import { IChat } from "types/chat";
 import { IRooms, IRoom } from "types/room";
+import { Debounce } from "util/debounce";
 
 interface Props {
-  users: null | IUser[];
-  setUsers(T: IUser[]): void;
+  users: IUsers;
+  setUsers(T: IUsers): void;
   rooms: IRooms;
   setRooms(T: IRooms): void;
   room: null | string;
   setRoom(T: null | string): void;
+  setChat(T: IChat | IChat[]): void;
+  roomsDebounce: Debounce;
 }
 
 export function useAppSocket({
@@ -19,16 +23,37 @@ export function useAppSocket({
   setRooms,
   room,
   setRoom,
+  setChat,
+  roomsDebounce,
 }: Props) {
-  const leaveRoom = useCallback(roomID => {
-    socket.emit("leave room", roomID);
+  // 방을 나갈 때, 클라이언트에 저장되어있는 방 정보를 초기화하고 새롭게 받아오도록 처리
+  const leaveRoom = useCallback(
+    roomID => {
+      setRoom(null);
+      const newRooms: IRooms = {};
+      const roomVals = Object.values(rooms);
+      roomVals.forEach(room => {
+        if (room.roomID !== roomID) newRooms[room.roomID] = room;
+      });
+      setRooms(newRooms);
+      socket.emit("leave room", roomID);
+    },
+    [setRoom, setRooms, rooms]
+  );
+
+  const goLoby = useCallback(() => {
+    socket.emit("go loby");
   }, []);
 
-  const sendRoomMessage = useCallback((message, roomID) => {
-    socket.emit("room message", { message, roomID });
+  const sendRoomMessage = useCallback(({ content, roomID }) => {
+    socket.emit("room message", { content, roomID });
   }, []);
 
-  // 초기 유저리스트, 방리스트 수령
+  const sendPrivateMessage = useCallback(content => {
+    socket.emit("private message", content);
+  }, []);
+
+  // 초기 유저리스트, 방리스트 수령, 로비로 이동시 새롭게 추가or제거된 유저나 방 수령
   useEffect(() => {
     socket.on("users", (users: IUser[]) => {
       const newUsers: IUsers = {};
