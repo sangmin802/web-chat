@@ -87,63 +87,55 @@ export function useLobySocket({
     return () => {
       socket.off("user connected");
       socket.off("user disconnected");
-      socket.off("private message");
       socket.off("public message");
     };
   }, [setChat, setUsers, setSelectedUser, users, selectedUser]);
 
-  // 방 관련
+  const onRoomCreated = useCallback(
+    (room: IRoom) => {
+      roomsDebounce.debounceAct(() => {
+        if (room.creater === socket.userID) joinRoom(room.roomID);
+        const newRooms = { ...roomsDebounce.newState, [room.roomID]: room };
+        roomsDebounce.newState = newRooms;
+      });
+    },
+    [roomsDebounce, joinRoom]
+  );
+
+  const onDeleteRoom = useCallback(
+    roomID => {
+      roomsDebounce.debounceAct(() => {
+        const newRooms: IRooms = {};
+        const roomVals: IRoom[] = Object.values(roomsDebounce.newState);
+        roomVals.forEach(room => {
+          if (room.roomID === roomID) return;
+          newRooms[room.roomID] = room;
+        });
+        roomsDebounce.newState = newRooms;
+      });
+    },
+    [roomsDebounce]
+  );
+
+  // 방관련
+
   useEffect(() => {
-    socket.on("room created", (room: IRoom) => {
-      if (room.creater === socket.userID) joinRoom(room.roomID);
-      const newRooms = { ...rooms, [room.roomID]: room };
-      setRooms(newRooms);
+    socket.on("room created", room => {
+      onRoomCreated(room);
+    });
+
+    socket.on("delete room", roomID => {
+      onDeleteRoom(roomID);
     });
 
     return () => {
       socket.off("room created");
-    };
-  }, [setRooms, rooms]);
-
-  // 방 제거 debounce
-  const deleteRoom = useCallback(
-    arr => {
-      const newRooms: IRooms = {};
-      const roomVals = Object.values(rooms);
-      roomVals.forEach(room => {
-        if (arr.includes(room.roomID)) return;
-        newRooms[room.roomID] = room;
-      });
-      setRooms(newRooms);
-    },
-    [rooms, setRooms]
-  );
-
-  const deleteDebounceAct = useMemo(
-    () => debounce(deleteRoom, 20),
-    [deleteRoom]
-  );
-
-  useEffect(() => {
-    socket.on("delete room", deleteDebounceAct);
-    return () => {
       socket.off("delete room");
     };
-  }, [deleteDebounceAct]);
-
-  useEffect(() => {
-    socket.on("session", userID => {
-      socket.userID = userID;
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
+  }, [onRoomCreated, onDeleteRoom]);
 
   return {
     sendPublicMessage,
-    sendPrivateMessage,
     createRoom,
     joinRoom,
   };

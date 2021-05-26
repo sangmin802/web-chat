@@ -19,6 +19,10 @@ function App() {
   const { rooms, setRooms } = useRooms();
   const { chats, setChat } = useChat(room);
   const { selectedUser, setSelectedUser } = useSelectUser();
+  const roomsDebounce = useMemo(
+    () => new Debounce(rooms, setRooms, 20),
+    [rooms, setRooms]
+  );
   const SE = useAppSocket({
     users,
     setUsers,

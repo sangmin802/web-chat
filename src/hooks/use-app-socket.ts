@@ -50,48 +50,73 @@ export function useAppSocket({
       socket.off("rooms");
     };
   }, [setRooms, setUsers]);
+  const onJoinRoom = useCallback(
+    ({ users, userID, userName, roomID }) => {
+      roomsDebounce.debounceAct(() => {
+        const targetRoom = { ...roomsDebounce.newState[roomID] };
+        const joinSelf = socket.userID === userID;
+        targetRoom.isJoined = true;
+        targetRoom.users = users;
+        targetRoom.messages.push({
+          content: `${userName}님이 입장하셨습니다.`,
+        });
+        const newRooms = { ...roomsDebounce.newState, [roomID]: targetRoom };
+        roomsDebounce.newState = newRooms;
+        if (joinSelf) setRoom(roomID);
+      });
+    },
+    [setRoom, roomsDebounce]
+  );
+
+  const onLeaveRoom = useCallback(
+    ({ users, userName, roomID }) => {
+      roomsDebounce.debounceAct(() => {
+        const targetRoom = { ...roomsDebounce.newState[roomID] };
+        if (!targetRoom) return;
+        targetRoom.users = users;
+        targetRoom.messages.push({
+          content: `${userName}님이 퇴장하셨습니다.`,
+        });
+        const newRooms = { ...roomsDebounce.newState, [roomID]: targetRoom };
+        roomsDebounce.newState = newRooms;
+      });
+    },
+    [roomsDebounce]
+  );
+
+  const onRoomMessage = useCallback(
+    ({ message, roomID }) => {
+      roomsDebounce.debounceAct(() => {
+        const targetRoom = { ...roomsDebounce.newState[roomID] };
+        targetRoom.messages.push(message);
+        if (!room) targetRoom.hasNewMessages++;
+        const newRooms = { ...roomsDebounce.newState, [roomID]: targetRoom };
+        roomsDebounce.newState = newRooms;
+      });
+    },
+    [roomsDebounce, room]
+  );
 
   // 룸 상태에 대한 감지는 지속적으로
   useEffect(() => {
-    socket.on("join room", ({ users, userID, roomID }) => {
-      const targetRoom = { ...rooms[roomID] };
-      const joinSelf = socket.userID === userID;
-      if (joinSelf) {
-        targetRoom.isJoined = true;
-        targetRoom.messages = [];
-      }
-      targetRoom.users = users;
-      const newRooms = { ...rooms, [roomID]: targetRoom };
-      setRooms(newRooms);
-      if (joinSelf) setRoom(roomID);
+    socket.on("join room", ({ users, userID, userName, roomID }) => {
+      onJoinRoom({ users, userID, userName, roomID });
     });
 
-    socket.on("leave room", ({ users, userID, roomID }) => {
-      const targetRoom = { ...rooms[roomID] };
-      const leaveSelf = socket.userID === userID;
-      if (leaveSelf) {
-        targetRoom.isJoined = false;
-        targetRoom.messages = [];
-      }
-      targetRoom.users = users;
-      const newRooms = { ...rooms, [roomID]: targetRoom };
-      setRooms(newRooms);
-      if (leaveSelf) setRoom(null);
+    socket.on("leave room", ({ users, userName, roomID }) => {
+      onLeaveRoom({ users, userName, roomID });
     });
 
     socket.on("room message", ({ message, roomID }) => {
-      const targetRoom = { ...rooms[roomID] };
-      targetRoom.messages.push(message);
-      if (!room) targetRoom.hasNewMessages++;
-      const newRooms = { ...rooms, [roomID]: targetRoom };
-      setRooms(newRooms);
+      onRoomMessage({ message, roomID });
     });
+
     return () => {
       socket.off("join room");
       socket.off("leave room");
       socket.off("room message");
     };
-  }, [setRooms, setRoom, rooms, setUsers, users, room]);
+  }, [onJoinRoom, onLeaveRoom, onRoomMessage]);
 
   // userID 할당 및 소킷 종료
   useEffect(() => {
