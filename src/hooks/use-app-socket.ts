@@ -46,11 +46,33 @@ export function useAppSocket({
       setRooms(newRooms);
     });
 
+    socket.on("go loby", ({ newUsers, newRooms }) => {
+      const combinedRooms: IRooms = {};
+      newRooms.forEach((room: IRoom) => {
+        if (rooms[room.roomID]) combinedRooms[room.roomID] = rooms[room.roomID];
+        // 새로운 방 생성
+        if (!rooms[room.roomID]) combinedRooms[room.roomID] = room;
+
+        // 서버에서 받아온 방이 기존 rooms에 없다면 제거
+      });
+
+      const combinedUsers: IUsers = {};
+      newUsers.forEach((user: IUser) => {
+        if (users[user.userID]) combinedUsers[user.userID] = users[user.userID];
+        if (!users[user.userID]) combinedUsers[user.userID] = user;
+      });
+
+      setRooms(combinedRooms);
+      setUsers(combinedUsers);
+    });
+
     return () => {
       socket.off("users");
       socket.off("rooms");
+      socket.off("go loby");
     };
-  }, [setRooms, setUsers]);
+  }, [setRooms, setUsers, rooms, users]);
+
   const onJoinRoom = useCallback(
     ({ users, userID, userName, roomID }) => {
       roomsDebounce.debounceAct(() => {
@@ -164,6 +186,8 @@ export function useAppSocket({
 
   return {
     sendRoomMessage,
+    sendPrivateMessage,
     leaveRoom,
+    goLoby,
   };
 }
