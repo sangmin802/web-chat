@@ -12,6 +12,7 @@ import Login from "pages/login/index";
 import Loby from "pages/loby";
 import RoomLoby from "pages/room-loby";
 import { Debounce } from "util/debounce";
+import Interface from "components/interface/index";
 
 function App() {
   const { isLogin, setLogin } = useLogin();
@@ -20,10 +21,12 @@ function App() {
   const { rooms, setRooms } = useRooms();
   const { chats, setChat } = useChat();
   const { selectedUser, setSelectedUser } = useSelectUser();
+
   const roomsDebounce = useMemo(
     () => new Debounce(rooms, setRooms, 0),
     [rooms, setRooms]
   );
+
   const toggleRoom = useCallback(
     roomID => {
       setRoom(roomID);
@@ -31,6 +34,7 @@ function App() {
     },
     [setSelectedUser, setRoom]
   );
+
   const SE = useAppSocket({
     users,
     setUsers,
@@ -71,36 +75,45 @@ function App() {
     [setSelectedUser, selectedUser, users, setUsers]
   );
 
+  const InterfaceLayout = (
+    <Interface
+      selectedUser={selectedUser}
+      togglePrivateMessage={togglePrivateMessage}
+      users={users}
+      setUsers={setUsers}
+      setSelectedUser={setSelectedUser}
+    />
+  );
+
   return (
     <div className="app">
       <SMain>
         {!isLogin && <Login setLogin={setLogin} />}
         {isLogin && selectedRoom && (
           <RoomLoby
-            selectedRoom={selectedRoom}
             setRoom={toggleRoom}
+            interfaceLayout={InterfaceLayout}
+            emitMessage={emitMessage}
+            selectedRoom={selectedRoom}
             leaveRoom={SE.leaveRoom}
             sendRoomMessage={SE.sendRoomMessage}
-            selectedUser={selectedUser}
-            emitMessage={emitMessage}
             goLoby={SE.goLoby}
-            togglePrivateMessage={togglePrivateMessage}
           />
         )}
         {isLogin && !selectedRoom && users && (
           <Loby
+            interfaceLayout={InterfaceLayout}
+            setRoom={toggleRoom}
+            selectedUser={selectedUser}
+            emitMessage={emitMessage}
             users={users}
             setUsers={setUsers}
+            setSelectedUser={setSelectedUser}
             chats={chats}
             setChat={setChat}
-            selectedUser={selectedUser}
-            setSelectedUser={setSelectedUser}
             setRooms={setRooms}
             rooms={rooms}
-            setRoom={toggleRoom}
-            emitMessage={emitMessage}
             roomsDebounce={roomsDebounce}
-            togglePrivateMessage={togglePrivateMessage}
           />
         )}
       </SMain>
