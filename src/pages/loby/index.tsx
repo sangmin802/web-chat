@@ -23,6 +23,7 @@ interface Props {
   setRooms(T: IRooms): void;
   emitMessage(T: emitMessage, U: IChat): void;
   roomsDebounce: Debounce;
+  togglePrivateMessage(T: string): void;
 }
 
 const Loby = (props: Props) => {
@@ -36,6 +37,7 @@ const Loby = (props: Props) => {
     setRooms,
     setRoom,
     emitMessage,
+    togglePrivateMessage,
   } = props;
 
   const SE = useLobySocket(props);
@@ -89,9 +91,12 @@ const Loby = (props: Props) => {
             />
           ))}
         </section>
-        <Chat chats={chats} emitMessage={emitMessageHandler}>
-          {selectedUser && <span>{selectedUser.userName} 에게</span>}
-        </Chat>
+        <Chat
+          chats={chats}
+          emitMessage={emitMessageHandler}
+          selectedUser={selectedUser}
+          togglePrivateMessage={togglePrivateMessage}
+        />
       </SChatAct>
     </SLoby>
   );

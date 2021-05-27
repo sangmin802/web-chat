@@ -13,6 +13,7 @@ interface Props {
   selectedUser: null | IUser;
   emitMessage(T: emitMessage, U: { content: string; roomID: string }): void;
   goLoby(): void;
+  togglePrivateMessage(T: string): void;
 }
 
 const RoomLoby = ({
@@ -23,6 +24,7 @@ const RoomLoby = ({
   selectedUser,
   emitMessage,
   goLoby,
+  togglePrivateMessage,
 }: Props) => {
   const roomID = useMemo(() => selectedRoom.roomID, [selectedRoom.roomID]);
   const emitMessageHandler = useCallback(
@@ -55,9 +57,12 @@ const RoomLoby = ({
           <div key={user.userID}>{user.userName}</div>
         ))}
       </div>
-      <Chat chats={selectedRoom.messages} emitMessage={emitMessageHandler}>
-        {selectedUser && <span>{selectedUser.userName} 에게</span>}
-      </Chat>
+      <Chat
+        chats={selectedRoom.messages}
+        emitMessage={emitMessageHandler}
+        selectedUser={selectedUser}
+        togglePrivateMessage={togglePrivateMessage}
+      />
     </section>
   );
 };

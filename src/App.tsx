@@ -49,6 +49,20 @@ function App() {
     [selectedUser, SE]
   );
 
+  const togglePrivateMessage = useCallback(
+    userID => {
+      const user = users[userID] ?? null;
+      if (!user) return setSelectedUser(null);
+      if (user.self) return;
+      const toggle = selectedUser?.userID === user.userID ? null : { ...user };
+      const newUsers = { ...users };
+      newUsers[user.userID].messages.hasNewMessages = 0;
+      setSelectedUser(toggle);
+      setUsers(newUsers);
+    },
+    [setSelectedUser, selectedUser, users, setUsers]
+  );
+
   return (
     <div className="app">
       <SMain>
@@ -56,12 +70,13 @@ function App() {
         {isLogin && selectedRoom && (
           <RoomLoby
             selectedRoom={selectedRoom}
-            setRoom={setRoom}
+            setRoom={toggleRoom}
             leaveRoom={SE.leaveRoom}
             sendRoomMessage={SE.sendRoomMessage}
             selectedUser={selectedUser}
             emitMessage={emitMessage}
             goLoby={SE.goLoby}
+            togglePrivateMessage={togglePrivateMessage}
           />
         )}
         {isLogin && !selectedRoom && users && (
@@ -74,9 +89,10 @@ function App() {
             setSelectedUser={setSelectedUser}
             setRooms={setRooms}
             rooms={rooms}
-            setRoom={setRoom}
+            setRoom={toggleRoom}
             emitMessage={emitMessage}
             roomsDebounce={roomsDebounce}
+            togglePrivateMessage={togglePrivateMessage}
           />
         )}
       </SMain>
