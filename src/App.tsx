@@ -21,8 +21,15 @@ function App() {
   const { chats, setChat } = useChat();
   const { selectedUser, setSelectedUser } = useSelectUser();
   const roomsDebounce = useMemo(
-    () => new Debounce(rooms, setRooms, 20),
+    () => new Debounce(rooms, setRooms, 0),
     [rooms, setRooms]
+  );
+  const toggleRoom = useCallback(
+    roomID => {
+      setRoom(roomID);
+      setSelectedUser(null);
+    },
+    [setSelectedUser, setRoom]
   );
   const SE = useAppSocket({
     users,
@@ -30,9 +37,10 @@ function App() {
     rooms,
     setRooms,
     room,
-    setRoom,
+    setRoom: toggleRoom,
     setChat,
     roomsDebounce,
+    selectedUser,
   });
 
   const selectedRoom = useMemo(() => {
