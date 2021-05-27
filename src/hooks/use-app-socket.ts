@@ -106,7 +106,12 @@ export function useAppSocket({
         const targetRoom = { ...roomsDebounce.newState[roomID] };
         const joinSelf = socket.userID === userID;
         targetRoom.isJoined = true;
-        targetRoom.users = users;
+        const newUsers = users.map((user: IUser) => {
+          user.self = false;
+          if (user.userID === socket.userID) user.self = true;
+          return user;
+        });
+        targetRoom.users = newUsers;
         targetRoom.messages.push({
           content: `${userName}님이 입장하셨습니다.`,
         });
@@ -194,7 +199,7 @@ export function useAppSocket({
         setUsers(newUsers);
       });
     },
-    [users, setUsers, selectedUser]
+    [roomsDebounce, users, setUsers, selectedUser]
   );
 
   // 귓속말은 상시 감지
