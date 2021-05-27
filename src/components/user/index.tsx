@@ -1,30 +1,17 @@
 import { useCallback } from "react";
 import styled from "styled-components";
-import { IUsers, IUser } from "types/user";
+import { IUser } from "types/user";
 
 interface Props {
-  users: IUsers;
-  setUsers(T: IUsers): void;
   user: IUser;
-  setSelectedUser(T: null | IUser): void;
+  togglePrivateMessage(T: string): void;
   selectedUser: null | IUser;
 }
 
-const User = ({
-  user,
-  setSelectedUser,
-  selectedUser,
-  users,
-  setUsers,
-}: Props) => {
+const User = ({ user, togglePrivateMessage, selectedUser }: Props) => {
   const onClickHandler = useCallback(() => {
-    if (user.self) return;
-    const toggle = selectedUser?.userID === user.userID ? null : { ...user };
-    const newUsers = { ...users };
-    newUsers[user.userID].messages.hasNewMessages = 0;
-    setSelectedUser(toggle);
-    setUsers(newUsers);
-  }, [setSelectedUser, user, selectedUser, users, setUsers]);
+    togglePrivateMessage(user.userID);
+  }, [togglePrivateMessage, user]);
 
   return (
     <SArticle
