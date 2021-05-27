@@ -29,7 +29,7 @@ export function useLobySocket({
 
   const createRoom = useCallback(() => {
     socket.emit("create room");
-  }, []);
+  }, [setSelectedUser]);
 
   const joinRoom = useCallback(roomID => {
     socket.emit("join room", roomID);

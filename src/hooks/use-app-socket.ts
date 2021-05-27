@@ -14,6 +14,7 @@ interface Props {
   setRoom(T: null | string): void;
   setChat(T: IChat | IChat[]): void;
   roomsDebounce: Debounce;
+  selectedUser: IUser | null;
 }
 
 export function useAppSocket({
@@ -25,6 +26,7 @@ export function useAppSocket({
   setRoom,
   setChat,
   roomsDebounce,
+  selectedUser,
 }: Props) {
   // 방을 나갈 때, 클라이언트에 저장되어있는 방 정보를 초기화하고 새롭게 받아오도록 처리
   const leaveRoom = useCallback(
@@ -166,37 +168,48 @@ export function useAppSocket({
     };
   }, [onJoinRoom, onLeaveRoom, onRoomMessage]);
 
+  const onStorePrivateMessage = useCallback(
+    (fromSelf, message) => {
+      roomsDebounce.debounceAct(() => {
+        setChat({ ...message, fromSelf });
+        if (room) {
+          const newRooms = { ...roomsDebounce.newState };
+          newRooms[room].messages.push({ ...message, fromSelf });
+          roomsDebounce.setState(newRooms);
+        }
+      });
+    },
+    [roomsDebounce, setChat, room]
+  );
+
+  const onCountingPrivateMessage = useCallback(
+    message => {
+      roomsDebounce.debounceAct(() => {
+        const newUsers = { ...users };
+        const targetUser = newUsers[message.from.userID];
+        if (selectedUser?.userID !== targetUser.userID) {
+          targetUser.messages.hasNewMessages++;
+          targetUser.messages.recent = new Date();
+        }
+        setUsers(newUsers);
+      });
+    },
+    [users, setUsers, selectedUser]
+  );
+
   // 귓속말은 상시 감지
   useEffect(() => {
     socket.on("private message", message => {
       const fromSelf = message.from.userID === socket.userID ? true : false;
-      setChat({ ...message, fromSelf });
-      if (room) {
-        const newRooms = { ...rooms };
-        newRooms[room].messages.push({ ...message, fromSelf });
-        setRooms(newRooms);
-      }
+      onStorePrivateMessage(fromSelf, message);
       if (fromSelf) return;
-      const newUsers: IUsers = {};
-      const userVals = Object.values(users);
-      userVals.forEach(user => {
-        if (user.userID === message.from.userID) {
-          const messages = {
-            hasNewMessages: user.messages.hasNewMessages + 1,
-            recent: new Date(),
-          };
-          user.messages = messages;
-        }
-        newUsers[user.userID] = user;
-      });
-
-      setUsers(newUsers);
+      onCountingPrivateMessage(message);
     });
 
     return () => {
       socket.off("private message");
     };
-  }, [setChat, setUsers, users, setRooms, rooms, room]);
+  }, [onStorePrivateMessage, onCountingPrivateMessage]);
 
   // userID 할당 및 소킷 종료
   useEffect(() => {
