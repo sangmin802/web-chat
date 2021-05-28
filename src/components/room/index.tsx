@@ -22,7 +22,7 @@ const Room = ({ room, enterRoom, joinRoom }: Props) => {
   }, [room.users, room.isJoined]);
 
   return (
-    <SRoom isJoined={room.isJoined} onClick={joinRoomHandler}>
+    <SRoom className="room" isJoined={room.isJoined} onClick={joinRoomHandler}>
       <div className="room-name">{room.roomName}</div>
       {room.isJoined && (
         <>
@@ -40,12 +40,22 @@ const Room = ({ room, enterRoom, joinRoom }: Props) => {
 };
 
 const SRoom = styled.article<{ isJoined: boolean }>`
-width : calc(98% / 3);
+  width : calc(98% / 3);
+  @media screen and (max-width: 600px) {
+    width: calc(98% / 2);
+  }
+  height : fit-content;
   border : 1px solid;
   border-color : ${({ isJoined }) => (isJoined ? "tomato" : "#444")}}
   border-radius : 3px;
   margin-right : 1%;
   padding : .2rem .4rem;
+  cursor : pointer;
+  * {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
 
 `;
 
