@@ -33,8 +33,13 @@ const Chat = ({
     togglePrivateMessage(id);
   }, [togglePrivateMessage, selectedUser]);
 
+  useEffect(() => {
+    const element = document.querySelector(".chats");
+    element?.scrollTo(0, element.scrollHeight);
+  }, [chats]);
+
   return (
-    <section>
+    <SChats className="chat-area">
       <div className="chats">
         {chats.map((chat, i) => (
           <Message
