@@ -122,7 +122,8 @@ function App() {
 }
 
 const SMain = styled.main`
-  height: 100vh;
+  width: 100%;
+  height: 100%;
 `;
 
 export default App;
