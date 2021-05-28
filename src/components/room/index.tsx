@@ -25,14 +25,14 @@ const Room = ({ room, enterRoom, joinRoom }: Props) => {
     <SRoom className="room" isJoined={room.isJoined} onClick={joinRoomHandler}>
       <div className="room-name">{room.roomName}</div>
       {room.isJoined && (
-        <>
+        <div className="room-info">
           <div className="room-users">
             {primaryUser} {size && `+${size}`}
           </div>
           {room.hasNewMessages !== 0 && (
             <div className="room-hasNewMessages">{room.hasNewMessages}</div>
           )}
-        </>
+        </div>
       )}
       {!room.isJoined && <div>대화방에 참여하세요!</div>}
     </SRoom>
@@ -56,7 +56,17 @@ const SRoom = styled.article<{ isJoined: boolean }>`
     overflow: hidden;
     white-space: nowrap;
   }
-
+  .room-info {
+    display : flex;
+    justify-content : space-between;
+    .room-hasNewMessages {
+      background-color: purple;
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+      font-size: 0.85rem;
+      color : white;
+    }
+  }
 `;
 
 export default Room;
