@@ -1,4 +1,5 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import styled from "styled-components";
 import { IChat } from "types/chat";
 import { IUser } from "types/user";
 import Message from "components/message/index";
@@ -51,13 +52,74 @@ const Chat = ({
       </div>
       <form onSubmit={onSubmitHandler}>
         {selectedUser && (
-          <span onClick={onClickHandler}>{selectedUser.userName} 에게</span>
+          <b className="private-message" onClick={onClickHandler}>
+            {selectedUser.userName} 에게
+          </b>
         )}
+        {!selectedUser && <b>모두에게</b>}
         <input ref={ref} type="text" />
         <button>입력</button>
       </form>
-    </section>
+    </SChats>
   );
 };
+
+const SChats = styled.section`
+  display: flex;
+  flex-direction: column;
+  .chats {
+    position: relative;
+    width: 100%;
+    height: calc(100% - 36.1px);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0.4rem;
+    overflow-y: scroll;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+  form {
+    position: relative;
+    width: 100%;
+    height: 36px;
+    background: #222;
+    display: flex;
+    align-items: center;
+    b {
+      display: inline-block;
+      width: 20%;
+      background-color: #222;
+      border-radius: 6px 0 0 6px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      color: #fff;
+      padding-left: 0.3rem;
+      &.private-message {
+        color: rgba(245, 81, 226, 1);
+      }
+    }
+    input {
+      border: 0;
+      width: 70%;
+      padding: 0.2rem 0.4rem;
+      outline: none;
+      border-radius: 6px;
+    }
+    button {
+      border: 0;
+      background: none;
+      width: 10%;
+      color: #fff;
+      cursor: pointer;
+    }
+    * {
+      font-size: 0.9rem;
+    }
+  }
+`;
 
 export default Chat;
