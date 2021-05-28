@@ -1,4 +1,5 @@
 import { cloneElement, ReactElement, useCallback, useMemo } from "react";
+import styled from "styled-components";
 import { IUsers, IUser } from "types/user";
 import { IChat } from "types/chat";
 import { IRooms } from "types/room";
@@ -80,10 +81,10 @@ const Loby = (props: Props) => {
           iterableUsers,
           emitMessageHandler,
         },
-        <>
-          <div className="button-container">
+        <SLobyChildren>
+          <section className="button-container">
             <button onClick={SE.createRoom}>방 만들기</button>
-          </div>
+          </section>
           <section className="created-rooms">
             {iterableRooms.map(room => (
               <Room
@@ -94,10 +95,33 @@ const Loby = (props: Props) => {
               />
             ))}
           </section>
-        </>
+        </SLobyChildren>
       )}
-    </>
+    </SInterface>
   );
 };
+
+const SInterface = styled.section`
+  display: flex;
+  height: 100%;
+  .chat-area {
+    height: 40%;
+  }
+`;
+
+const SLobyChildren = styled.section`
+  height: 60%;
+  padding: 0.5rem;
+  .created-rooms {
+    height: calc(99% - 30.1px);
+    padding-top: 0.5rem;
+    display: flex;
+    overflow-y: scroll;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+`;
 
 export default Loby;
