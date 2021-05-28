@@ -1,4 +1,5 @@
 import { useCallback, useMemo, cloneElement, ReactElement } from "react";
+import styled from "styled-components";
 import { IRoom } from "types/room";
 
 type emitMessage = (T: string, U: string) => void;
@@ -41,7 +42,7 @@ const RoomLoby = ({
   }, [leaveRoom, roomID, goLoby]);
 
   return (
-    <>
+    <SInterface>
       {cloneElement(
         interfaceLayout,
         {
@@ -49,13 +50,28 @@ const RoomLoby = ({
           iterableUsers: selectedRoom.users,
           emitMessageHandler,
         },
-        <div className="button-container">
-          <button onClick={leaveRoomHandler}>나가기</button>
-          <button onClick={goLobbyHandler}>로비로 이동</button>
-        </div>
+        <SLobyChildren>
+          <div className="button-container">
+            <button onClick={leaveRoomHandler}>나가기</button>
+            <button onClick={goLobbyHandler}>로비로 이동</button>
+          </div>
+        </SLobyChildren>
       )}
-    </>
+    </SInterface>
   );
 };
+
+const SInterface = styled.section`
+  display: flex;
+  height: 100%;
+  .chat-area {
+    height: calc(100% - 46.1px);
+  }
+`;
+
+const SLobyChildren = styled.section`
+  padding: 0.5rem;
+  height: fit-content;
+`;
 
 export default RoomLoby;
