@@ -3,7 +3,8 @@ interface ISocet extends Socket {
   userID?: string;
 }
 
-const url = "http://localhost:3001/web-chat";
+const url = "https://web-chat-sangmin-server.herokuapp.com/web-chat";
+// const url = "http://localhost:3001/web-chat";
 
 export const socket: ISocet = io(url, { autoConnect: false });
 
