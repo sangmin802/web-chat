@@ -53,10 +53,26 @@ const Loby = (props: Props) => {
     [rooms, setRoom, setRooms]
   );
 
-  const iterableRooms = useMemo(() => Object.values(rooms), [rooms]);
-  const iterableUsers = useMemo(() => Object.values(users), [users]);
+  const iterableRooms = useMemo(
+    () =>
+      Object.values(rooms).sort((a, b) => {
+        if (a.isJoined) return -1;
+        return 0;
+      }),
+    [rooms]
+  );
+  const iterableUsers = useMemo(
+    () =>
+      Object.values(users).sort((a, b) => {
+        if (a.self) return -1;
+        if (b.self) return 1;
+        if (a.messages.recent > b.messages.recent) return -1;
+        return 0;
+      }),
+    [users]
+  );
   return (
-    <>
+    <SInterface>
       {cloneElement(
         interfaceLayout,
         {
