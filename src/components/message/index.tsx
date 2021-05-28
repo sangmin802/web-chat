@@ -29,16 +29,20 @@ const Message = ({
 
   return (
     <SArticle type={type} onClick={onClickHandler}>
-      {title} : {content}
+      <b>{title}</b> : {content}
     </SArticle>
   );
 };
 
 const SArticle = styled.article<{ type: number }>`
+  width: 100%;
+  position: relative;
+  text-align: left;
   color: ${({ type }) => {
     const arr = ["green", "black", "purple"];
     return arr[type];
   }};
+  cursor: ${({ type }) => (type === 2 ? "pointer" : "normal")};
 `;
 
 export default Message;
