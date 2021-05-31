@@ -90,9 +90,9 @@ function App() {
 
   return (
     <div className="app">
+      {isLogin && isUsers === 0 && <LoadingSpinner />}
       <SMain>
         {!isLogin && <Login setLogin={setLogin} />}
-        {isLogin && isUsers === 0 && <LoadingSpinner />}
         {isLogin && selectedRoom && (
           <RoomLoby
             setRoom={toggleRoom}
