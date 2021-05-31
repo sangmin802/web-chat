@@ -8,11 +8,12 @@ import { useChat } from "hooks/use-chat";
 import { useRoom } from "hooks/use-room";
 import { useRooms } from "hooks/use-rooms";
 import { useSelectUser } from "hooks/use-select-user";
+import { Debounce } from "util/debounce";
 import Login from "pages/login/index";
 import Loby from "pages/loby";
 import RoomLoby from "pages/room-loby";
-import { Debounce } from "util/debounce";
 import Interface from "components/interface/index";
+import LoadingSpinner from "components/loading-spinner";
 
 function App() {
   const { isLogin, setLogin } = useLogin();
@@ -85,10 +86,13 @@ function App() {
     />
   );
 
+  const isUsers = useMemo(() => Object.values(users).length, [users]);
+
   return (
     <div className="app">
       <SMain>
         {!isLogin && <Login setLogin={setLogin} />}
+        {isLogin && isUsers === 0 && <LoadingSpinner />}
         {isLogin && selectedRoom && (
           <RoomLoby
             setRoom={toggleRoom}
