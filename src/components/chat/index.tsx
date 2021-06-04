@@ -1,22 +1,25 @@
 import { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { IChat } from "types/chat";
-import { IUser } from "types/user";
 import Message from "components/message/index";
 
-interface Props {
-  chats: IChat[];
+interface userProps {
+  userID: string;
+  userName: string;
+}
+
+interface Props<userType, chatType> {
+  chats: chatType[];
   emitMessage(T: string): void;
-  selectedUser: IUser | null;
+  selectedUser: userType | null;
   togglePrivateMessage(T: string | null): void;
 }
 
-const Chat = ({
+const Chat = <userType extends Partial<userProps>, chatType>({
   chats,
   emitMessage,
   selectedUser,
   togglePrivateMessage,
-}: Props) => {
+}: Props<userType, chatType>) => {
   const ref = useRef<HTMLInputElement>(null);
   const onSubmitHandler = useCallback(
     e => {
