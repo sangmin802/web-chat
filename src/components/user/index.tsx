@@ -1,15 +1,27 @@
 import { useCallback } from "react";
 import styled from "styled-components";
-import { IUser } from "types/user";
 
-interface Props {
-  user: IUser;
-  togglePrivateMessage(T: string): void;
-  selectedUser: null | IUser;
+interface userProps {
+  userID: string;
+  userName: string;
+  messages: {
+    hasNewMessages: number;
+  };
 }
 
-const User = ({ user, togglePrivateMessage, selectedUser }: Props) => {
+interface Props<userType> {
+  user: userType;
+  togglePrivateMessage(T: string): void;
+  selectedUser: null | userType;
+}
+
+const User = <userType extends Partial<userProps>>({
+  user,
+  togglePrivateMessage,
+  selectedUser,
+}: Props<userType>) => {
   const onClickHandler = useCallback(() => {
+    if (!user.userID) return;
     togglePrivateMessage(user.userID);
   }, [togglePrivateMessage, user]);
 
