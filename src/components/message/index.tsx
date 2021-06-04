@@ -1,8 +1,18 @@
 import { useCallback, useMemo } from "react";
 import styled from "styled-components";
-import { IChat } from "types/chat";
 
-interface Props extends IChat {
+interface UserProps {
+  [key: string]: string;
+}
+
+interface MessageProps {
+  content: string;
+  from: UserProps;
+  to: UserProps;
+  fromSelf: string;
+}
+
+interface Props extends Partial<MessageProps> {
   togglePrivateMessage(T: string): void;
 }
 
