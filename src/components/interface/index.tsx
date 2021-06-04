@@ -1,29 +1,33 @@
 import React from "react";
 import styled from "styled-components";
-import { IUser, IUsers } from "types/user";
 import User from "components/user/index";
-import { IChat } from "types/chat";
 import { JsxChild } from "typescript";
 import Chat from "components/chat/index";
 
-interface Props {
-  selectedUser: null | IUser;
+interface userProps {
+  userID: string;
+}
+
+interface Props<userType, usersType, chatType> {
+  selectedUser: null | userType;
   togglePrivateMessage(T: string): void;
-  users: IUsers;
-  setUsers(T: IUsers): void;
-  setSelectedUser(T: IUser): void;
-  chats?: IChat[];
-  iterableUsers?: IUser[];
+  users: usersType;
+  setUsers(T: usersType): void;
+  setSelectedUser(T: userType): void;
+  chats?: chatType[];
+  iterableUsers?: userType[];
   emitMessageHandler?(T: string): void;
   children?: JsxChild;
 }
 
-const Interface = (p: Props) => {
+const Interface = <userType extends userProps, usersType, chatType>(
+  p: Props<userType, usersType, chatType>
+) => {
   return (
     <>
       <SUsers className="users">
-        {(p.iterableUsers as IUser[]).map((user: IUser) => (
-          <User
+        {(p.iterableUsers as userType[]).map((user: userType) => (
+          <User<userType>
             key={user.userID}
             user={user}
             togglePrivateMessage={p.togglePrivateMessage}
@@ -33,8 +37,8 @@ const Interface = (p: Props) => {
       </SUsers>
       <SChatAct>
         {p.children}
-        <Chat
-          chats={p.chats as IChat[]}
+        <Chat<userType, chatType>
+          chats={p.chats as chatType[]}
           emitMessage={p.emitMessageHandler as (T: string) => void}
           selectedUser={p.selectedUser}
           togglePrivateMessage={p.togglePrivateMessage}
