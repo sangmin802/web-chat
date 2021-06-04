@@ -1,8 +1,8 @@
 import { cloneElement, ReactElement, useCallback, useMemo } from "react";
 import styled from "styled-components";
-import { IUsers, IUser } from "types/user";
+import { IUsers, IUser, IUserID } from "types/user";
 import { IChat } from "types/chat";
-import { IRooms } from "types/room";
+import { IRooms, IRoom } from "types/room";
 import { useLobySocket } from "hooks/use-loby-socket";
 import { Debounce } from "util/debounce";
 import Room from "components/room/index";
@@ -87,7 +87,7 @@ const Loby = (props: Props) => {
           </section>
           <section className="created-rooms">
             {iterableRooms.map(room => (
-              <Room
+              <Room<IRoom, IUserID>
                 key={room.roomID}
                 room={room}
                 enterRoom={enterRoom}
