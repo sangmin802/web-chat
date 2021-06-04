@@ -1,14 +1,32 @@
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
-import { IRoom } from "types/room";
 
-interface Props {
-  room: IRoom;
+interface userProps {
+  userName: string;
+}
+
+interface RoomProps<userType> {
+  isJoined: boolean;
+  roomID: string;
+  users: userType[];
+  roomName: string;
+  hasNewMessages: number;
+}
+
+interface Props<roomType> {
+  room: roomType;
   enterRoom(T: string): void;
   joinRoom(T: string): void;
 }
 
-const Room = ({ room, enterRoom, joinRoom }: Props) => {
+const Room = <
+  roomType extends RoomProps<userType>,
+  userType extends userProps
+>({
+  room,
+  enterRoom,
+  joinRoom,
+}: Props<roomType>) => {
   const joinRoomHandler = useCallback(() => {
     if (room.isJoined) return enterRoom(room.roomID);
     joinRoom(room.roomID);
