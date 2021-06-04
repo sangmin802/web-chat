@@ -1,4 +1,6 @@
 import { useCallback, useMemo } from "react";
+import { IUser, IUsers } from "types/user";
+import { IChat } from "types/chat";
 import "styles/global.css";
 import styled from "styled-components";
 import { useLogin } from "hooks/use-login";
@@ -77,7 +79,7 @@ function App() {
   );
 
   const InterfaceLayout = (
-    <Interface
+    <Interface<IUser, IUsers, IChat>
       selectedUser={selectedUser}
       togglePrivateMessage={togglePrivateMessage}
       users={users}
