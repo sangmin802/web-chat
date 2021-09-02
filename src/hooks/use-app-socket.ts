@@ -3,44 +3,43 @@ import { socket } from "socket/index";
 import { IUser, IUsers } from "types/user";
 import { IChat } from "types/chat";
 import { IRooms, IRoom } from "types/room";
-import { Debounce } from "util/debounce";
 
 interface Props {
   users: IUsers;
-  setUsers(T: IUsers): void;
+  setUsers(T: any): void;
   rooms: IRooms;
-  setRooms(T: IRooms): void;
+  setRooms(T: any): void;
   room: null | string;
   setRoom(T: null | string): void;
-  setChat(T: IChat | IChat[]): void;
-  roomsDebounce: Debounce;
+  setChat(T: any): void;
   selectedUser: IUser | null;
 }
 
 export function useAppSocket({
-  users,
   setUsers,
-  rooms,
   setRooms,
   room,
   setRoom,
   setChat,
-  roomsDebounce,
   selectedUser,
 }: Props) {
   // 방을 나갈 때, 클라이언트에 저장되어있는 방 정보를 초기화하고 새롭게 받아오도록 처리
   const leaveRoom = useCallback(
     roomID => {
       setRoom(null);
-      const newRooms: IRooms = {};
-      const roomVals = Object.values(rooms);
-      roomVals.forEach(room => {
-        if (room.roomID !== roomID) newRooms[room.roomID] = room;
+
+      setRooms((oldRooms: any) => {
+        const newRooms: IRooms = {};
+        const roomVals: any = Object.values(oldRooms);
+        roomVals.forEach((room: any) => {
+          if (room.roomID !== roomID) newRooms[room.roomID] = room;
+        });
+        return newRooms;
       });
-      setRooms(newRooms);
+      // setRooms(newRooms);
       socket.emit("leave room", roomID);
     },
-    [setRoom, setRooms, rooms]
+    [setRoom, setRooms]
   );
 
   const goLoby = useCallback(() => {
@@ -74,23 +73,28 @@ export function useAppSocket({
     });
 
     socket.on("go loby", ({ newUsers, newRooms }) => {
-      const combinedRooms: IRooms = {};
-      newRooms.forEach((room: IRoom) => {
-        if (rooms[room.roomID]) combinedRooms[room.roomID] = rooms[room.roomID];
-        // 새로운 방 생성
-        if (!rooms[room.roomID]) combinedRooms[room.roomID] = room;
+      setRooms((oldRooms: any) => {
+        const combinedRooms: IRooms = {};
+        newRooms.forEach((room: IRoom) => {
+          if (oldRooms[room.roomID])
+            combinedRooms[room.roomID] = oldRooms[room.roomID];
+          // 새로운 방 생성
+          if (!oldRooms[room.roomID]) combinedRooms[room.roomID] = room;
 
-        // 서버에서 받아온 방이 기존 rooms에 없다면 제거
+          // 서버에서 받아온 방이 기존 rooms에 없다면 제거
+        });
+        return combinedRooms;
       });
 
-      const combinedUsers: IUsers = {};
-      newUsers.forEach((user: IUser) => {
-        if (users[user.userID]) combinedUsers[user.userID] = users[user.userID];
-        if (!users[user.userID]) combinedUsers[user.userID] = user;
+      setUsers((oldUsers: any) => {
+        const combinedUsers: IUsers = {};
+        newUsers.forEach((user: IUser) => {
+          if (oldUsers[user.userID])
+            combinedUsers[user.userID] = oldUsers[user.userID];
+          if (!oldUsers[user.userID]) combinedUsers[user.userID] = user;
+        });
+        return combinedUsers;
       });
-
-      setRooms(combinedRooms);
-      setUsers(combinedUsers);
     });
 
     return () => {
@@ -98,68 +102,69 @@ export function useAppSocket({
       socket.off("rooms");
       socket.off("go loby");
     };
-  }, [setRooms, setUsers, rooms, users]);
+  }, [setRooms, setUsers]);
 
   const onJoinRoom = useCallback(
-    ({ users, userID, userName, roomID }) => {
-      roomsDebounce.debounceAct(() => {
-        const targetRoom = { ...roomsDebounce.newState[roomID] };
+    ({ roomUsers, userID, userName, roomID }) => {
+      setRooms((oldRooms: any) => {
+        const targetRoom = { ...oldRooms[roomID] };
         const joinSelf = socket.userID === userID;
         targetRoom.isJoined = true;
-        const newUsers = users.map((user: IUser) => {
-          user.self = false;
-          if (user.userID === socket.userID) user.self = true;
-          return user;
+        const newUsers = roomUsers.map((roomUser: IUser) => {
+          roomUser.self = false;
+          if (roomUser.userID === socket.userID) roomUser.self = true;
+          return roomUser;
         });
+
         targetRoom.users = newUsers;
         targetRoom.messages.push({
           content: `${userName}님이 입장하셨습니다.`,
         });
-        const newRooms = { ...roomsDebounce.newState, [roomID]: targetRoom };
-        roomsDebounce.newState = newRooms;
+        const newRooms = { ...oldRooms, [roomID]: targetRoom };
         if (joinSelf) setRoom(roomID);
+        return newRooms;
       });
     },
-    [setRoom, roomsDebounce]
+    [setRoom, setRooms]
   );
 
   const onLeaveRoom = useCallback(
-    ({ users, userName, roomID }) => {
-      roomsDebounce.debounceAct(() => {
-        const targetRoom = { ...roomsDebounce.newState[roomID] };
+    ({ roomUsers, userName, roomID }) => {
+      setRooms((oldRooms: any) => {
+        const targetRoom = { ...oldRooms[roomID] };
         if (!targetRoom) return;
-        targetRoom.users = users;
+        targetRoom.users = roomUsers;
         targetRoom.messages.push({
           content: `${userName}님이 퇴장하셨습니다.`,
         });
-        const newRooms = { ...roomsDebounce.newState, [roomID]: targetRoom };
-        roomsDebounce.newState = newRooms;
+        const newRooms = { ...oldRooms, [roomID]: targetRoom };
+        return newRooms;
       });
     },
-    [roomsDebounce]
+    [setRooms]
   );
 
   const onRoomMessage = useCallback(
     ({ message, roomID }) => {
-      roomsDebounce.debounceAct(() => {
-        const targetRoom = { ...roomsDebounce.newState[roomID] };
+      setRooms((oldRooms: any) => {
+        const targetRoom = { ...oldRooms[roomID] };
         targetRoom.messages.push(message);
         if (!room) targetRoom.hasNewMessages++;
-        const newRooms = { ...roomsDebounce.newState, [roomID]: targetRoom };
-        roomsDebounce.newState = newRooms;
+        const newRooms = { ...oldRooms, [roomID]: targetRoom };
+        return newRooms;
       });
     },
-    [roomsDebounce, room]
+    [setRooms, room]
   );
 
   // 룸 상태에 대한 감지는 지속적으로
   useEffect(() => {
-    socket.on("join room", ({ users, userID, userName, roomID }) => {
-      onJoinRoom({ users, userID, userName, roomID });
+    socket.on("join room", ({ roomUsers, userID, userName, roomID }) => {
+      onJoinRoom({ roomUsers, userID, userName, roomID });
     });
 
-    socket.on("leave room", ({ users, userName, roomID }) => {
-      onLeaveRoom({ users, userName, roomID });
+    socket.on("leave room", ({ roomUsers, userName, roomID }) => {
+      onLeaveRoom({ roomUsers, userName, roomID });
     });
 
     socket.on("room message", ({ message, roomID }) => {
@@ -175,31 +180,35 @@ export function useAppSocket({
 
   const onStorePrivateMessage = useCallback(
     (fromSelf, message) => {
-      roomsDebounce.debounceAct(() => {
-        setChat({ ...message, fromSelf });
-        if (room) {
-          const newRooms = { ...roomsDebounce.newState };
-          newRooms[room].messages.push({ ...message, fromSelf });
-          roomsDebounce.setState(newRooms);
-        }
+      setChat((oldChats: any) => {
+        const chat = { ...message, fromSelf };
+        return [...oldChats, chat];
+      });
+
+      if (!room) return;
+
+      setRooms((oldRooms: any) => {
+        const newRooms = { ...oldRooms };
+        newRooms[room].messages.push({ ...message, fromSelf });
+        return newRooms;
       });
     },
-    [roomsDebounce, setChat, room]
+    [setRooms, setChat, room]
   );
 
   const onCountingPrivateMessage = useCallback(
     message => {
-      roomsDebounce.debounceAct(() => {
-        const newUsers = { ...users };
+      setUsers((oldUsers: any) => {
+        const newUsers = { ...oldUsers };
         const targetUser = newUsers[message.from.userID];
         if (selectedUser?.userID !== targetUser.userID) {
           targetUser.messages.hasNewMessages++;
           targetUser.messages.recent = new Date();
         }
-        setUsers(newUsers);
+        return newUsers;
       });
     },
-    [roomsDebounce, users, setUsers, selectedUser]
+    [setUsers, selectedUser]
   );
 
   // 귓속말은 상시 감지

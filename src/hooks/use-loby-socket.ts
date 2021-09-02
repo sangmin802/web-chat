@@ -3,25 +3,27 @@ import { socket } from "socket/index";
 import { IUser, IUsers } from "types/user";
 import { IChat } from "types/chat";
 import { IRoom, IRooms } from "types/room";
-import { Debounce } from "util/debounce";
 
 interface Props {
   users: IUsers;
-  setUsers(T: IUsers): void;
-  setChat(T: IChat): void;
+  // setUsers(T: IUsers): void;
+  setUsers(T: any): void;
+  // setChat(T: IChat): void;
+  setChat(T: any): void;
   selectedUser: null | IUser;
   setSelectedUser(T: null | IUser): void;
   setRoom(T: null | string): void;
-  roomsDebounce: Debounce;
+  setRooms(T: any): void;
+  rooms: IRooms;
 }
 
 export function useLobySocket({
-  users,
   setUsers,
   setChat,
   selectedUser,
   setSelectedUser,
-  roomsDebounce,
+  setRooms,
+  rooms,
 }: Props) {
   const sendPublicMessage = useCallback(({ content }) => {
     socket.emit("public message", content);
@@ -38,10 +40,13 @@ export function useLobySocket({
   // 로비 내부 채팅
   useEffect(() => {
     socket.on("user connected", user => {
-      const newUsers = { ...users };
-      newUsers[user.userID] = user;
-      setUsers(newUsers);
-      setChat({ content: `${user.userName}님이 입장하셨습니다.` });
+      setUsers((oldUsers: any) => {
+        return { ...oldUsers, [user.userID]: user };
+      });
+      setChat((oldChats: any) => {
+        const chat = { content: `${user.userName}님이 입장하셨습니다.` };
+        return [...oldChats, chat];
+      });
     });
 
     socket.on("user disconnected", ({ userID, userName }) => {
@@ -51,18 +56,25 @@ export function useLobySocket({
         content = `귓속말 대상인 ${userName}님이 퇴장하셨습니다.`;
         setSelectedUser(null);
       }
-      const newUsers: IUsers = {};
-      const userVals = Object.values(users);
-      userVals.forEach(user => {
-        if (user.userID !== userID) newUsers[user.userID] = user;
+      setChat((oldChats: any) => {
+        const chat = { content };
+        return [...oldChats, chat];
       });
-
-      setChat({ content });
-      setUsers(newUsers);
+      setUsers((oldUsers: any) => {
+        const newUsers: IUsers = {};
+        const userVals: any = Object.values(oldUsers);
+        userVals.forEach((user: any) => {
+          if (user.userID !== userID) newUsers[user.userID] = user;
+        });
+        return newUsers;
+      });
     });
 
     socket.on("public message", message => {
-      setChat({ ...message });
+      setChat((oldChats: any) => {
+        const chat = { ...message };
+        return [...oldChats, chat];
+      });
     });
 
     return () => {
@@ -70,32 +82,28 @@ export function useLobySocket({
       socket.off("user disconnected");
       socket.off("public message");
     };
-  }, [setChat, setUsers, setSelectedUser, users, selectedUser]);
+  }, [setChat, setUsers, setSelectedUser, selectedUser]);
 
-  const onRoomCreated = useCallback(
-    (room: IRoom) => {
-      roomsDebounce.debounceAct(() => {
-        if (room.creater === socket.userID) joinRoom(room.roomID);
-        const newRooms = { ...roomsDebounce.newState, [room.roomID]: room };
-        roomsDebounce.newState = newRooms;
-      });
-    },
-    [roomsDebounce, joinRoom]
-  );
+  const onRoomCreated = useCallback((room: IRoom) => {
+    setRooms((oldRooms: any) => {
+      if (room.creater === socket.userID) joinRoom(room.roomID);
+      return { ...oldRooms, [room.roomID]: room };
+    });
+  }, []);
 
   const onDeleteRoom = useCallback(
     roomID => {
-      roomsDebounce.debounceAct(() => {
+      setRooms((oldRooms: any) => {
         const newRooms: IRooms = {};
-        const roomVals: IRoom[] = Object.values(roomsDebounce.newState);
+        const roomVals: IRoom[] = Object.values(oldRooms);
         roomVals.forEach(room => {
           if (room.roomID === roomID) return;
           newRooms[room.roomID] = room;
         });
-        roomsDebounce.newState = newRooms;
+        return newRooms;
       });
     },
-    [roomsDebounce]
+    [setRooms]
   );
 
   // 방관련

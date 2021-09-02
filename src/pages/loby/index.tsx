@@ -14,14 +14,13 @@ interface Props {
   users: IUsers;
   setUsers(T: IUsers): void;
   chats: IChat[];
-  setChat(T: IChat | IChat[]): void;
+  setChat(T: any): void;
   selectedUser: null | IUser;
   setSelectedUser(T: IUser): void;
   rooms: IRooms;
   setRoom(T: string): void;
   setRooms(T: IRooms): void;
   emitMessage(T: emitMessage, U: IChat): void;
-  roomsDebounce: Debounce;
 }
 
 const Loby = (props: Props) => {
@@ -116,6 +115,7 @@ const SLobyChildren = styled.section`
     height: calc(99% - 30.1px);
     padding-top: 0.5rem;
     display: flex;
+    flex-wrap: wrap;
     overflow-y: scroll;
     scrollbar-width: none;
     &::-webkit-scrollbar {
