@@ -1,28 +1,20 @@
 import { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
-interface UserProps {
-  [key: string]: string;
+interface MessageProps<T> {
+  chat: T;
+  togglePrivateMessage(T: string | null): void;
 }
 
-interface MessageProps {
-  content: string;
-  from: UserProps;
-  to: UserProps;
-  fromSelf: string;
-}
-
-interface Props extends Partial<MessageProps> {
-  togglePrivateMessage(T: string): void;
-}
-
-const Message = ({
-  content,
-  from,
-  to,
-  fromSelf,
-  togglePrivateMessage,
-}: Props) => {
+function Message<
+  T extends Partial<{
+    content: string;
+    from: { [key: string]: string };
+    to: { [key: string]: string };
+    fromSelf: string;
+  }>
+>({ chat, togglePrivateMessage }: MessageProps<T>) {
+  const { content, from, to, fromSelf } = chat;
   const [title, type] = useMemo(() => {
     if (!to && !from) return ["공지", 0];
     if (!to) return [from?.userName, 1];
@@ -42,7 +34,7 @@ const Message = ({
       <b>{title}</b> : {content}
     </SArticle>
   );
-};
+}
 
 const SArticle = styled.article<{ type: number }>`
   width: 100%;

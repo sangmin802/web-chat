@@ -1,27 +1,25 @@
-import { useCallback, useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
-import { useLoginSocket } from "hooks/use-login-socket";
 
 interface Props {
-  setLogin(T: boolean): void;
+  connectSocket(T: string): void;
 }
 
-const Login = ({ setLogin }: Props) => {
+const Login = ({ connectSocket }: Props) => {
   const ref = useRef<HTMLInputElement>(null);
-  const { connectSocekt } = useLoginSocket({ setLogin });
-  const onSubmitHandler = useCallback(
+  const handleOnSubmit = useCallback(
     e => {
       e.preventDefault();
       const userName = ref?.current?.value;
-      if (userName) connectSocekt(userName);
+      if (userName) connectSocket(userName);
     },
-    [connectSocekt, ref]
+    [connectSocket, ref]
   );
 
   return (
     <SLogin>
       <h2>Web Chat</h2>
-      <form onSubmit={onSubmitHandler}>
+      <form onSubmit={handleOnSubmit}>
         <input
           ref={ref}
           type="text"
@@ -65,4 +63,4 @@ const SLogin = styled.section`
   }
 `;
 
-export default Login;
+export default React.memo(Login);
