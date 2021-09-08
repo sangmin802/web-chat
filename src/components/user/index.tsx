@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import styled from "styled-components";
 
-interface userProps {
+interface IUser {
   userID: string;
   userName: string;
   messages: {
@@ -9,17 +9,17 @@ interface userProps {
   };
 }
 
-interface Props<userType> {
-  user: userType;
+interface UserProps<T> {
+  user: T;
   togglePrivateMessage(T: string): void;
-  selectedUser: null | userType;
+  joinedUser: T | null;
 }
 
-const User = <userType extends Partial<userProps>>({
+function User<T extends Partial<IUser>>({
   user,
   togglePrivateMessage,
-  selectedUser,
-}: Props<userType>) => {
+  joinedUser,
+}: UserProps<T>) {
   const onClickHandler = useCallback(() => {
     if (!user.userID) return;
     togglePrivateMessage(user.userID);
@@ -27,7 +27,7 @@ const User = <userType extends Partial<userProps>>({
 
   return (
     <SArticle
-      isTarget={user.userID === selectedUser?.userID}
+      isTarget={user.userID === joinedUser?.userID}
       onClick={onClickHandler}
     >
       <div className="user-name">{user.userName}</div>
@@ -38,7 +38,7 @@ const User = <userType extends Partial<userProps>>({
       )}
     </SArticle>
   );
-};
+}
 
 const SArticle = styled.article<{ isTarget: boolean }>`
   width: 100%;

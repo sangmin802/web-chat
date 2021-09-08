@@ -2,40 +2,35 @@ import { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import Message from "components/message/index";
 
-interface userProps {
-  userID: string;
-  userName: string;
-}
-
-interface Props<userType, chatType> {
-  chats: chatType[];
-  emitMessage(T: string): void;
-  selectedUser: userType | null;
+interface ChatProps<T> {
+  chats: T[];
+  sendMessage(T: string): void;
+  joinedUser: { userID?: string; userName?: string } | null;
   togglePrivateMessage(T: string | null): void;
 }
 
-const Chat = <userType extends Partial<userProps>, chatType>({
+function Chat<T>({
   chats,
-  emitMessage,
-  selectedUser,
+  sendMessage,
+  joinedUser,
   togglePrivateMessage,
-}: Props<userType, chatType>) => {
+}: ChatProps<T>) {
   const ref = useRef<HTMLInputElement>(null);
   const onSubmitHandler = useCallback(
     e => {
       e.preventDefault();
       const message = ref?.current?.value;
       if (!message) return;
-      emitMessage(message);
+      sendMessage(message);
       e.target[0].value = "";
     },
-    [emitMessage]
+    [sendMessage]
   );
 
   const onClickHandler = useCallback(() => {
-    const id = selectedUser?.userID ?? null;
+    const id = joinedUser?.userID ?? null;
     togglePrivateMessage(id);
-  }, [togglePrivateMessage, selectedUser]);
+  }, [togglePrivateMessage, joinedUser]);
 
   useEffect(() => {
     const element = document.querySelector(".chats");
@@ -48,24 +43,24 @@ const Chat = <userType extends Partial<userProps>, chatType>({
         {chats.map((chat, i) => (
           <Message
             key={`chat ${i}`}
-            {...chat}
+            chat={chat}
             togglePrivateMessage={togglePrivateMessage}
           />
         ))}
       </div>
       <form onSubmit={onSubmitHandler}>
-        {selectedUser && (
+        {joinedUser && (
           <b className="private-message" onClick={onClickHandler}>
-            {selectedUser.userName} 에게
+            {joinedUser.userName} 에게
           </b>
         )}
-        {!selectedUser && <b>모두에게</b>}
+        {!joinedUser && <b>모두에게</b>}
         <input ref={ref} type="text" />
         <button>입력</button>
       </form>
     </SChats>
   );
-};
+}
 
 const SChats = styled.section`
   display: flex;

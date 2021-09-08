@@ -1,32 +1,21 @@
-import React, { useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
-interface userProps {
-  userName: string;
-}
-
-interface RoomProps<userType> {
+interface IRoom {
   isJoined: boolean;
   roomID: string;
-  users: userType[];
+  users: { userName: string }[];
   roomName: string;
   hasNewMessages: number;
 }
 
-interface Props<roomType> {
-  room: roomType;
+interface RoomProps<T> {
+  room: T;
   enterRoom(T: string): void;
   joinRoom(T: string): void;
 }
 
-const Room = <
-  roomType extends RoomProps<userType>,
-  userType extends userProps
->({
-  room,
-  enterRoom,
-  joinRoom,
-}: Props<roomType>) => {
+function Room<T extends IRoom>({ room, enterRoom, joinRoom }: RoomProps<T>) {
   const joinRoomHandler = useCallback(() => {
     if (room.isJoined) return enterRoom(room.roomID);
     joinRoom(room.roomID);
@@ -55,7 +44,7 @@ const Room = <
       {!room.isJoined && <div>대화방에 참여하세요!</div>}
     </SRoom>
   );
-};
+}
 
 const SRoom = styled.article<{ isJoined: boolean }>`
   width : calc(98% / 3);

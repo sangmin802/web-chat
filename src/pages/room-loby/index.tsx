@@ -1,65 +1,48 @@
-import { useCallback, useMemo, cloneElement, ReactElement } from "react";
+import React, { useCallback } from "react";
+import { Interface } from "components";
 import styled from "styled-components";
-import { IRoom } from "types/room";
+import { IUser, IRoom } from "types/socket";
 
-type emitMessage = (T: string, U: string) => void;
-
-interface Props {
-  setRoom(T: null): void;
-  interfaceLayout: ReactElement;
-  emitMessage(T: emitMessage, U: { content: string; roomID: string }): void;
-  selectedRoom: IRoom;
+interface RoomLobyProps {
+  joinedRoom: IRoom;
+  joinedUser: IUser | null;
   leaveRoom(T: string): void;
-  sendRoomMessage(T: string, U: string): void;
   goLoby(): void;
+  toggleJoinedUser(T: string): void;
+  sendMessage(T: string): void;
 }
 
-const RoomLoby = ({
-  setRoom,
-  interfaceLayout,
-  emitMessage,
-  selectedRoom,
+function RoomLoby({
+  joinedRoom,
+  joinedUser,
   leaveRoom,
-  sendRoomMessage,
   goLoby,
-}: Props) => {
-  const roomID = useMemo(() => selectedRoom.roomID, [selectedRoom.roomID]);
-  const emitMessageHandler = useCallback(
-    content => {
-      emitMessage(sendRoomMessage, { content, roomID });
-    },
-    [emitMessage, sendRoomMessage, roomID]
-  );
-
-  const goLobbyHandler = useCallback(() => {
-    setRoom(null);
-    goLoby();
-  }, [setRoom, goLoby]);
-
-  const leaveRoomHandler = useCallback(() => {
-    leaveRoom(roomID);
-    goLoby();
-  }, [leaveRoom, roomID, goLoby]);
+  toggleJoinedUser,
+  sendMessage,
+}: RoomLobyProps) {
+  const handleLeaveRoom = useCallback(() => {
+    leaveRoom(joinedRoom.roomID);
+  }, [leaveRoom, joinedRoom]);
 
   return (
     <SInterface>
-      {cloneElement(
-        interfaceLayout,
-        {
-          chats: selectedRoom.messages,
-          iterableUsers: selectedRoom.users,
-          emitMessageHandler,
-        },
+      <Interface
+        joinedUser={joinedUser}
+        toggleJoinedUser={toggleJoinedUser}
+        sendMessage={sendMessage}
+        chats={joinedRoom.messages}
+        users={joinedRoom.users}
+      >
         <SLobyChildren>
           <div className="button-container">
-            <button onClick={leaveRoomHandler}>나가기</button>
-            <button onClick={goLobbyHandler}>로비로 이동</button>
+            <button onClick={handleLeaveRoom}>나가기</button>
+            <button onClick={goLoby}>로비로 이동</button>
           </div>
         </SLobyChildren>
-      )}
+      </Interface>
     </SInterface>
   );
-};
+}
 
 const SInterface = styled.section`
   display: flex;
@@ -74,4 +57,4 @@ const SLobyChildren = styled.section`
   height: fit-content;
 `;
 
-export default RoomLoby;
+export default React.memo(RoomLoby);

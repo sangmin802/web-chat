@@ -1,52 +1,42 @@
-import React from "react";
+import { ReactElement } from "react";
 import styled from "styled-components";
 import User from "components/user/index";
-import { JsxChild } from "typescript";
 import Chat from "components/chat/index";
 
-interface userProps {
-  userID: string;
+interface InterfaceProps<T> {
+  joinedUser: T | null;
+  toggleJoinedUser(T: string): void;
+  sendMessage(T: string): void;
+  chats: any[];
+  users: T[];
+  children: ReactElement;
 }
 
-interface Props<userType, usersType, chatType> {
-  selectedUser: null | userType;
-  togglePrivateMessage(T: string): void;
-  users: usersType;
-  setUsers(T: usersType): void;
-  setSelectedUser(T: userType): void;
-  chats?: chatType[];
-  iterableUsers?: userType[];
-  emitMessageHandler?(T: string): void;
-  children?: JsxChild;
-}
-
-const Interface = <userType extends userProps, usersType, chatType>(
-  p: Props<userType, usersType, chatType>
-) => {
+function Interface<T extends { userID: string }>(props: InterfaceProps<T>) {
   return (
     <>
       <SUsers className="users">
-        {(p.iterableUsers as userType[]).map((user: userType) => (
-          <User<userType>
+        {props.users?.map(user => (
+          <User
             key={user.userID}
             user={user}
-            togglePrivateMessage={p.togglePrivateMessage}
-            selectedUser={p.selectedUser}
+            togglePrivateMessage={props.toggleJoinedUser}
+            joinedUser={props.joinedUser}
           />
         ))}
       </SUsers>
       <SChatAct>
-        {p.children}
-        <Chat<userType, chatType>
-          chats={p.chats as chatType[]}
-          emitMessage={p.emitMessageHandler as (T: string) => void}
-          selectedUser={p.selectedUser}
-          togglePrivateMessage={p.togglePrivateMessage}
+        {props.children}
+        <Chat
+          chats={props.chats}
+          sendMessage={props.sendMessage}
+          joinedUser={props.joinedUser}
+          togglePrivateMessage={props.toggleJoinedUser}
         />
       </SChatAct>
     </>
   );
-};
+}
 
 const SUsers = styled.section`
   width: 20%;

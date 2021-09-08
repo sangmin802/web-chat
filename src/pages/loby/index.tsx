@@ -1,61 +1,34 @@
-import { cloneElement, ReactElement, useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
-import { IUsers, IUser, IUserID } from "types/user";
-import { IChat } from "types/chat";
-import { IRooms, IRoom } from "types/room";
-import { useLobySocket } from "hooks/use-loby-socket";
-import { Debounce } from "util/debounce";
-import Room from "components/room/index";
+import { Interface, Room } from "components";
+import { IUsers, IChat, IRooms, IUser } from "types/socket";
 
-type emitMessage = (T: IChat) => void;
-
-interface Props {
-  interfaceLayout: ReactElement;
+interface LobyProps {
   users: IUsers;
-  setUsers(T: IUsers): void;
   chats: IChat[];
-  setChat(T: any): void;
-  selectedUser: null | IUser;
-  setSelectedUser(T: IUser): void;
   rooms: IRooms;
-  setRoom(T: string): void;
-  setRooms(T: IRooms): void;
-  emitMessage(T: emitMessage, U: IChat): void;
+  joinedUser: IUser | null;
+  toggleJoinedUser(T: string): void;
+  joinRoom(T: string): void;
+  enterRoom(T: string): void;
+  createRoom(): void;
+  sendMessage(T: string): void;
 }
 
-const Loby = (props: Props) => {
-  const {
-    chats,
-    rooms,
-    setRooms,
-    setRoom,
-    emitMessage,
-    users,
-    interfaceLayout,
-  } = props;
-
-  const SE = useLobySocket(props);
-
-  const emitMessageHandler = useCallback(
-    content => {
-      emitMessage(SE.sendPublicMessage, { content });
-    },
-    [emitMessage, SE]
-  );
-
-  const enterRoom = useCallback(
-    roomID => {
-      const newRooms = { ...rooms };
-      newRooms[roomID] = { ...rooms[roomID], hasNewMessages: 0 };
-      setRooms(newRooms);
-      setRoom(roomID);
-    },
-    [rooms, setRoom, setRooms]
-  );
-
+function Loby({
+  users,
+  chats,
+  rooms,
+  joinedUser,
+  toggleJoinedUser,
+  joinRoom,
+  enterRoom,
+  createRoom,
+  sendMessage,
+}: LobyProps) {
   const iterableRooms = useMemo(
     () =>
-      Object.values(rooms).sort((a, b) => {
+      Object.values(rooms).sort(a => {
         if (a.isJoined) return -1;
         return 0;
       }),
@@ -71,34 +44,35 @@ const Loby = (props: Props) => {
       }),
     [users]
   );
+
   return (
     <SInterface>
-      {cloneElement(
-        interfaceLayout,
-        {
-          chats,
-          iterableUsers,
-          emitMessageHandler,
-        },
+      <Interface
+        joinedUser={joinedUser}
+        toggleJoinedUser={toggleJoinedUser}
+        sendMessage={sendMessage}
+        chats={chats}
+        users={iterableUsers}
+      >
         <SLobyChildren>
           <section className="button-container">
-            <button onClick={SE.createRoom}>방 만들기</button>
+            <button onClick={createRoom}>방 만들기</button>
           </section>
           <section className="created-rooms">
             {iterableRooms.map(room => (
-              <Room<IRoom, IUserID>
+              <Room
                 key={room.roomID}
                 room={room}
                 enterRoom={enterRoom}
-                joinRoom={SE.joinRoom}
+                joinRoom={joinRoom}
               />
             ))}
           </section>
         </SLobyChildren>
-      )}
+      </Interface>
     </SInterface>
   );
-};
+}
 
 const SInterface = styled.section`
   display: flex;
@@ -124,4 +98,4 @@ const SLobyChildren = styled.section`
   }
 `;
 
-export default Loby;
+export default React.memo(Loby);
