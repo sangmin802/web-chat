@@ -5,7 +5,8 @@ import { socketReducer, initialState } from "socket/reducer";
 import { ReducerAction } from "socket/action";
 
 export function useSocket(
-  setLogin: React.Dispatch<React.SetStateAction<boolean>>
+  setLogin: React.Dispatch<React.SetStateAction<boolean>>,
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>
 ) {
   const [state, setState] = useReducer<
     Reducer<typeof initialState, ReducerAction>
@@ -13,8 +14,9 @@ export function useSocket(
   const { joinedRoomID } = state;
 
   const handleGoLoby = useCallback(() => {
+    setLoading(true);
     socket.emit("go loby");
-  }, []);
+  }, [setLoading]);
 
   const handleToggleJoinedUser = useCallback(userID => {
     if (userID === socket.userID) return;
@@ -52,10 +54,12 @@ export function useSocket(
   const handleConnectSocket = useCallback(
     userName => {
       setLogin(true);
+      console.log("?");
+      setLoading(true);
       socket.auth = { userName };
       socket.connect();
     },
-    [setLogin]
+    [setLogin, setLoading]
   );
 
   useEffect(() => {
@@ -64,6 +68,7 @@ export function useSocket(
     });
 
     socket.on("users rooms", ({ users, rooms }) => {
+      setLoading(false);
       setState({ type: Action.SET_USERS_ROOMS, users, rooms });
     });
 
@@ -74,6 +79,7 @@ export function useSocket(
     socket.on(
       "leave room",
       ({ roomUsers, userID, userName, roomID, users, rooms }) => {
+        setLoading(false);
         setState({
           type: Action.LEAVE_ROOM,
           roomUsers,
@@ -97,7 +103,7 @@ export function useSocket(
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [setLoading]);
 
   useEffect(() => {
     if (!joinedRoomID) {

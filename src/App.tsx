@@ -1,11 +1,13 @@
 import { useCallback, useState } from "react";
 import { Loby, Login, RoomLoby } from "pages";
+import { LoadingSpinner } from "components";
 import { useSocket } from "hooks/useSocket";
 import * as Styled from "./app.style";
 
 function App() {
   const [isLogin, setLogin] = useState(false);
-  const SI = useSocket(setLogin);
+  const [isLoading, setLoading] = useState(false);
+  const SI = useSocket(setLogin, setLoading);
   const { chats, users, rooms, joinedRoomID, joinedUser } = SI.state;
 
   const handleSendMessage = useCallback(
@@ -22,6 +24,7 @@ function App() {
   return (
     <Styled.App>
       <Styled.Main>
+        {isLoading && <LoadingSpinner />}
         {!isLogin && <Login connectSocket={SI.handleConnectSocket} />}
         {isLogin && joinedRoomID && (
           <RoomLoby
