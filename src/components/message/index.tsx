@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from "react";
-import styled from "styled-components";
+import { Text } from "components";
+import * as Styled from "./index.style";
 
 interface MessageProps<T> {
   chat: T;
@@ -16,35 +17,26 @@ function Message<
 >({ chat, togglePrivateMessage }: MessageProps<T>) {
   const { content, from, to, fromSelf } = chat;
   const [title, type] = useMemo(() => {
-    if (!to && !from) return ["공지", 0];
-    if (!to) return [from?.userName, 1];
-    if (fromSelf) return [`당신이 ${to.userName}에게`, 2];
-    if (!fromSelf) return [`${from?.userName}님이 당신에게`, 2];
-    return [null, 1];
+    if (!to && !from) return ["공지", "anounce-message"];
+    if (!to) return [from?.userName, "public-message"];
+    if (fromSelf) return [`당신이 ${to.userName}에게`, "private-message"];
+    if (!fromSelf) return [`${from?.userName}님이 당신에게`, "private-message"];
+    return [null, "public"];
   }, [from, to, fromSelf]);
 
-  const onClickHandler = useCallback(() => {
+  const handleToggleMessageType = useCallback(() => {
     if (!to || !from) return;
     const id = fromSelf ? to.userID : from.userID;
     togglePrivateMessage(id);
   }, [togglePrivateMessage, fromSelf, from, to]);
 
   return (
-    <SArticle type={type} onClick={onClickHandler}>
-      <b>{title}</b> : {content}
-    </SArticle>
+    <Styled.Message type={type} onClick={handleToggleMessageType}>
+      <Text type={type}>
+        <b>{title}</b> : {content}
+      </Text>
+    </Styled.Message>
   );
 }
-
-const SArticle = styled.article<{ type: number }>`
-  width: 100%;
-  position: relative;
-  text-align: left;
-  color: ${({ type }) => {
-    const arr = ["green", "black", "purple"];
-    return arr[type];
-  }};
-  cursor: ${({ type }) => (type === 2 ? "pointer" : "normal")};
-`;
 
 export default Message;

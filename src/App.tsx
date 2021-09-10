@@ -1,8 +1,7 @@
-import { useCallback, useState, useMemo } from "react";
-import "styles/global.css";
-import styled from "styled-components";
+import { useCallback, useState } from "react";
 import { Loby, Login, RoomLoby } from "pages";
-import { useSocket } from "hooks/use-socket";
+import { useSocket } from "hooks/useSocket";
+import * as Styled from "./app.style";
 
 function App() {
   const [isLogin, setLogin] = useState(false);
@@ -21,8 +20,8 @@ function App() {
   );
 
   return (
-    <div className="app">
-      <SMain>
+    <Styled.App>
+      <Styled.Main>
         {!isLogin && <Login connectSocket={SI.handleConnectSocket} />}
         {isLogin && joinedRoomID && (
           <RoomLoby
@@ -47,14 +46,9 @@ function App() {
             sendMessage={handleSendMessage}
           />
         )}
-      </SMain>
-    </div>
+      </Styled.Main>
+    </Styled.App>
   );
 }
-
-const SMain = styled.main`
-  width: 100%;
-  height: 100%;
-`;
 
 export default App;

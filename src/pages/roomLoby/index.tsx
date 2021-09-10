@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
-import { Interface } from "components";
-import styled from "styled-components";
+import { Interface, Button } from "components";
 import { IUser, IRoom } from "types/socket";
+import * as Styled from "./index.style";
 
 interface RoomLobyProps {
   joinedRoom: IRoom;
@@ -25,7 +25,7 @@ function RoomLoby({
   }, [leaveRoom, joinedRoom]);
 
   return (
-    <SInterface>
+    <Styled.Interface>
       <Interface
         joinedUser={joinedUser}
         toggleJoinedUser={toggleJoinedUser}
@@ -33,28 +33,19 @@ function RoomLoby({
         chats={joinedRoom.messages}
         users={joinedRoom.users}
       >
-        <SLobyChildren>
-          <div className="button-container">
-            <button onClick={handleLeaveRoom}>나가기</button>
-            <button onClick={goLoby}>로비로 이동</button>
-          </div>
-        </SLobyChildren>
+        <Styled.RoomLoby>
+          <Styled.Buttons>
+            <Button border="border" onClick={handleLeaveRoom}>
+              나가기
+            </Button>
+            <Button border="border" onClick={goLoby}>
+              로비로 이동
+            </Button>
+          </Styled.Buttons>
+        </Styled.RoomLoby>
       </Interface>
-    </SInterface>
+    </Styled.Interface>
   );
 }
-
-const SInterface = styled.section`
-  display: flex;
-  height: 100%;
-  .chat-area {
-    height: calc(100% - 46.1px);
-  }
-`;
-
-const SLobyChildren = styled.section`
-  padding: 0.5rem;
-  height: fit-content;
-`;
 
 export default React.memo(RoomLoby);

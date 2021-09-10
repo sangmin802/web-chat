@@ -1,7 +1,7 @@
-import React, { useCallback, useMemo } from "react";
-import styled from "styled-components";
-import { Interface, Room } from "components";
+import React, { useMemo } from "react";
+import { Button, Interface, Room } from "components";
 import { IUsers, IChat, IRooms, IUser } from "types/socket";
+import * as Styled from "./index.style";
 
 interface LobyProps {
   users: IUsers;
@@ -46,7 +46,7 @@ function Loby({
   );
 
   return (
-    <SInterface>
+    <Styled.Interface>
       <Interface
         joinedUser={joinedUser}
         toggleJoinedUser={toggleJoinedUser}
@@ -54,11 +54,13 @@ function Loby({
         chats={chats}
         users={iterableUsers}
       >
-        <SLobyChildren>
-          <section className="button-container">
-            <button onClick={createRoom}>방 만들기</button>
-          </section>
-          <section className="created-rooms">
+        <Styled.Loby>
+          <Styled.Buttons>
+            <Button border="border" onClick={createRoom}>
+              방 만들기
+            </Button>
+          </Styled.Buttons>
+          <Styled.Rooms>
             {iterableRooms.map(room => (
               <Room
                 key={room.roomID}
@@ -67,35 +69,11 @@ function Loby({
                 joinRoom={joinRoom}
               />
             ))}
-          </section>
-        </SLobyChildren>
+          </Styled.Rooms>
+        </Styled.Loby>
       </Interface>
-    </SInterface>
+    </Styled.Interface>
   );
 }
-
-const SInterface = styled.section`
-  display: flex;
-  height: 100%;
-  .chat-area {
-    height: 40%;
-  }
-`;
-
-const SLobyChildren = styled.section`
-  height: 60%;
-  padding: 0.5rem;
-  .created-rooms {
-    height: calc(99% - 30.1px);
-    padding-top: 0.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    overflow-y: scroll;
-    scrollbar-width: none;
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-`;
 
 export default React.memo(Loby);
