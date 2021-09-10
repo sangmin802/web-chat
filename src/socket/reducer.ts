@@ -93,7 +93,8 @@ export function socketReducer(
     case Action.ROOM_MESSAGE: {
       const { message, roomID } = action;
       const targetRoom = { ...state.rooms[roomID] };
-      targetRoom.messages.push(message);
+      const newMessages = [...targetRoom.messages, message];
+      targetRoom.messages = newMessages;
       if (!state.joinedRoomID) targetRoom.hasNewMessages++;
       const newRooms = { ...state.rooms, [roomID]: targetRoom };
       return { ...state, rooms: newRooms };

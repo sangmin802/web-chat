@@ -1,7 +1,6 @@
 import { ReactElement } from "react";
-import styled from "styled-components";
-import User from "components/user/index";
-import Chat from "components/chat/index";
+import { User, Chat } from "components";
+import * as Styled from "./index.style";
 
 interface InterfaceProps<T> {
   joinedUser: T | null;
@@ -15,7 +14,7 @@ interface InterfaceProps<T> {
 function Interface<T extends { userID: string }>(props: InterfaceProps<T>) {
   return (
     <>
-      <SUsers className="users">
+      <Styled.Users className="users">
         {props.users?.map(user => (
           <User
             key={user.userID}
@@ -24,8 +23,8 @@ function Interface<T extends { userID: string }>(props: InterfaceProps<T>) {
             joinedUser={props.joinedUser}
           />
         ))}
-      </SUsers>
-      <SChatAct>
+      </Styled.Users>
+      <Styled.ChatTools>
         {props.children}
         <Chat
           chats={props.chats}
@@ -33,42 +32,9 @@ function Interface<T extends { userID: string }>(props: InterfaceProps<T>) {
           joinedUser={props.joinedUser}
           togglePrivateMessage={props.toggleJoinedUser}
         />
-      </SChatAct>
+      </Styled.ChatTools>
     </>
   );
 }
-
-const SUsers = styled.section`
-  width: 20%;
-  height: 100%;
-  overflow-y: scroll;
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-  background: #222;
-`;
-
-const SChatAct = styled.section`
-  width: 80%;
-  height : 100%;
-  display: flex;
-  flex-direction: column;
-  .button-container {
-    display : flex;
-    justify-content : flex-end;
-    height : 30px;
-    button {
-      display: inline-block;
-      width: fit-content;
-      background: transparent;
-      border 1px solid #666;
-      border-radius : 3px;
-      padding : .1rem .3rem;
-      cursor : pointer;
-      margin-left : .3rem;
-    }
-  }
-`;
 
 export default Interface;

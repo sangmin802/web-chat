@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from "react";
-import styled from "styled-components";
+import { Text } from "components";
+import * as Styled from "./index.style";
 
 interface IRoom {
   isJoined: boolean;
@@ -29,51 +30,24 @@ function Room<T extends IRoom>({ room, enterRoom, joinRoom }: RoomProps<T>) {
   }, [room.users, room.isJoined]);
 
   return (
-    <SRoom className="room" isJoined={room.isJoined} onClick={joinRoomHandler}>
-      <div className="room-name">{room.roomName}</div>
-      {room.isJoined && (
-        <div className="room-info">
-          <div className="room-users">
+    <Styled.Room isJoined={room.isJoined} onClick={joinRoomHandler}>
+      <Text>{room.roomName}</Text>
+      {room.isJoined ? (
+        <Styled.RoomInfo>
+          <Text>
             {primaryUser} {size && `+${size}`}
-          </div>
+          </Text>
           {room.hasNewMessages !== 0 && (
-            <div className="room-hasNewMessages">{room.hasNewMessages}</div>
+            <Styled.HasNewMessagesages>
+              <Text type="white">{room.hasNewMessages}</Text>
+            </Styled.HasNewMessagesages>
           )}
-        </div>
+        </Styled.RoomInfo>
+      ) : (
+        <Text>대화방에 참여하세요!</Text>
       )}
-      {!room.isJoined && <div>대화방에 참여하세요!</div>}
-    </SRoom>
+    </Styled.Room>
   );
 }
-
-const SRoom = styled.article<{ isJoined: boolean }>`
-  width : calc(98% / 3);
-  @media screen and (max-width: 600px) {
-    width: calc(98% / 2);
-  }
-  height : fit-content;
-  border : 1px solid;
-  border-color : ${({ isJoined }) => (isJoined ? "tomato" : "#444")}}
-  border-radius : 3px;
-  margin-right : 1%;
-  padding : .2rem .4rem;
-  cursor : pointer;
-  * {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-  }
-  .room-info {
-    display : flex;
-    justify-content : space-between;
-    .room-hasNewMessages {
-      background-color: purple;
-      padding: 0.1rem 0.3rem;
-      border-radius: 3px;
-      font-size: 0.85rem;
-      color : white;
-    }
-  }
-`;
 
 export default Room;
