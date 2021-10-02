@@ -54,7 +54,6 @@ export function useSocket(
   const handleConnectSocket = useCallback(
     userName => {
       setLogin(true);
-      console.log("?");
       setLoading(true);
       socket.auth = { userName };
       socket.connect();
