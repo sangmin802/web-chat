@@ -68,3 +68,11 @@ export default Button;
 - `Redux`의 사용이 강제됨
 - `take`와 같은 기능으로 `connect`, `disconnect` 로직을 `flow` 형식으로 작성할 수 있을것 같음.
 - `channel`기능이 `socket`과 상당히 궁합이 잘맞는다고 함.
+  > `action`이 짧은 텀 내에 여러번 호출되었을 때, `que` 형식의 자료구조를 가진 상태로 순차적으로 진행될 수 있도록 버퍼링
+  > `socket.on`과 같은 외부 이벤트를 `saga`의 `take`에 연결할 수 있도록 도와주는 기능
+  > `buffer`에 누적된 값들을 저장하고, `flush`로 그 값들을 가져와 사용
+
+### 참조하기 좋은 사이트
+
+- [Redux-Saga book](https://mskims.github.io/redux-saga-in-korean/)
+- [Redux-Saga, socket](https://meetup.toast.com/posts/114)
